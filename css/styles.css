@@ -39,7 +39,7 @@ html, body {
   background: var(--accent);
   color: #0f0f0f;
   border-color: var(--accent);
-  font-weight: 600;
+  font-weight: bold;
 }
 
 /* ========== SIDEBAR ========== */
@@ -145,8 +145,8 @@ html, body {
 
 #btn-toggle-sidebar {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 8px;
+  left: 8px;
   z-index: 300; /* Por encima del sidebar (que tiene 200) */
   width: 42px;
   height: 42px;
@@ -179,24 +179,25 @@ html, body {
 }
 
 .song-header {
-  padding: 16px 20px 16px 65px; /* Margen izquierdo de 65px para dejar espacio al botón redondo */
+  padding: 14px 16px 14px 55px; /* Espacio para el botón flotante de menú */
   border-bottom: 1px solid var(--border);
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
+  flex-direction: column; /* Apila los metadatos arriba y los controles abajo */
+  gap: 12px;
   background: var(--bg-sidebar);
   flex-shrink: 0;
 }
 
 .song-meta h2 {
-  font-size: 1.5rem;
-  margin-bottom: 4px;
+  font-size: 1.35rem;
+  margin-bottom: 2px;
+  word-break: break-word;
 }
 
 .song-meta p {
   color: var(--text-muted);
-  margin-bottom: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
 }
 
 .badge {
@@ -211,7 +212,7 @@ html, body {
 .song-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 
@@ -225,9 +226,10 @@ html, body {
 }
 
 #transpose-value {
-  min-width: 24px;
+  min-width: 20px;
   text-align: center;
   font-weight: 600;
+  font-size: 0.9rem;
 }
 
 /* Chord display */
@@ -293,19 +295,18 @@ html, body {
 .notes-section {
   flex-shrink: 0;
   border-top: 1px solid var(--border);
-  padding: 12px 20px;
+  padding: 8px 10px;
   background: var(--bg-sidebar);
 }
 
 .notes-section h3 {
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   margin-bottom: 6px;
 }
 
 #song-notes {
   width: 100%;
-  min-height: 70px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -404,10 +405,70 @@ html, body {
 }
 
 #btn-save-notes {
-  padding: 6px 12px;
-  font-size: 13px;
-  min-height: 34px;
+  padding: 3px 6px;
+  font-size: 10px;
+  min-height: 24px;
 }
 #btn-save-notes:hover {
   background-color: #8ab9e4;
+}
+.btn-icon {
+  min-width: 38px;
+  min-height: 38px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+.transpose-controls.compact {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-card);
+  padding: 2px 6px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  height: 38px;
+}
+
+.transpose-controls.compact .btn {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* ========== MODO INMERSIVO DE AUTO-SCROLL ========== */
+
+/* Transiciones suaves para los elementos que se ocultan */
+.song-header, .notes-section {
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+  max-height: 300px; /* Altura estimada de seguridad para la animación */
+  opacity: 1;
+  overflow: hidden;
+}
+
+/* Cuando el contenedor de la canción tiene la clase autoscrolling */
+#song-view.autoscrolling .song-header .song-meta,
+#song-view.autoscrolling .notes-section {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border: none;
+  margin: 0;
+  pointer-events: none; /* Evita clics accidentales mientras está oculto */
+}
+
+/* En el header, dejamos exclusivamente visible la barra de controles inferior */
+#song-view.autoscrolling .song-header {
+  padding: 8px 16px 8px 55px; /* Reduce el padding del header al mínimo */
+}
+
+/* Opcional: si quieres que el título de la canción desaparezca por completo y solo quede la barra de controles */
+#song-view.autoscrolling .song-header .song-meta {
+  display: none;
 }

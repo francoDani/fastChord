@@ -186,6 +186,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const btnAutoScroll = document.getElementById('btn-autoscroll');
   const chordDisplay = document.getElementById('chord-display');
+  const songView = document.getElementById('song-view');
 
   btnAutoScroll.addEventListener('click', function () {
     if (isAutoScrolling) {
@@ -196,12 +197,15 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   function startAutoScroll() {
-    if (document.getElementById('song-view').classList.contains('hidden')) return;
+    if (songView.classList.contains('hidden')) return;
 
     isAutoScrolling = true;
     btnAutoScroll.classList.add('active');
-    btnAutoScroll.textContent = '■ Stop';
+    btnAutoScroll.textContent = '■';
     btnAutoScroll.title = 'Detener Auto-scroll';
+
+    // Activa el modo inmersivo ocultando header y notas
+    songView.classList.add('autoscrolling');
 
     autoScrollInterval = setInterval(function () {
       if (chordDisplay.scrollTop + chordDisplay.clientHeight >= chordDisplay.scrollHeight - 5) {
@@ -215,8 +219,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function stopAutoScroll() {
     isAutoScrolling = false;
     btnAutoScroll.classList.remove('active');
-    btnAutoScroll.textContent = '▶ Auto';
+    btnAutoScroll.textContent = '▶';
     btnAutoScroll.title = 'Auto-scroll';
+
+    // Restaura la vista completa mostrando header y notas
+    songView.classList.remove('autoscrolling');
 
     if (autoScrollInterval) {
       clearInterval(autoScrollInterval);
