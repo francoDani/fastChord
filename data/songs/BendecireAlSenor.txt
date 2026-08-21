@@ -3,29 +3,29 @@
 {category: Entrada}
 
 Verse 1
-RE             RE7          SOL  
+D             D7          G  
 Bendeciré al Señor en todo tiempo,
-     LA          LA7         RE  SOL LA
+     A          A7         D  
 y mi boca no cesará de alabarlo.
-RE             RE7          SOL  
+D             D7          G  
 Mi alma se enorgullece en el Señor,
-     LA          LA7         RE     RE7
+     A          A7         D     D7
 que lo oigan los humildes y se alegren. 
 
 Chorus
-               SOL
+               G        Gm
 Prueben qué bueno es el Señor,
-           RE         SIm
+           D         Bm
 hagan la prueba y véanlo.
-   SOL            LA            RE     RE7
+   G            A            D     D7
 Dichoso aquel que busca en el refugio. (bis)
 
 Verse 2
-      SOL       LA        RE    RE7
+      G       A        D    D7
 Engrandezcan conmigo al Señor,
-     SOL   LA       RE
+     G   A       D
 ensalcemos todos su Nombre.
-    SOL     LA        RE         SIm
+    G     A        D         Bm
 Busqué al Señor y me dio una respuesta:
-      SOL   LA          RE     RE7    
+      G   A          D     D7    
 me libró de todos mis temores.

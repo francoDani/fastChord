@@ -31,6 +31,8 @@ html, body {
 #app {
   display: flex;
   height: 100%;
+  position: relative; /* Contenedor de referencia para elementos absolutos */
+  overflow: hidden;
 }
 /* Auto-scroll activo */
 #btn-autoscroll.active {
@@ -42,6 +44,9 @@ html, body {
 
 /* ========== SIDEBAR ========== */
 #sidebar {
+  position: absolute; /* Lo saca del flujo de caja, evitando que empuje el workspace */
+  top: 0;
+  left: 0;
   width: 320px;
   min-width: 280px;
   background: var(--bg-sidebar);
@@ -49,21 +54,25 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  transition: width 0.25s ease, min-width 0.25s ease;
+  z-index: 200; /* Por encima del workspace */
+  box-shadow: 4px 0px 15px rgba(0, 0, 0, 0.5); /* Sombra elegante para profundidad */
+  transition: transform 0.25s ease; /* Transición por desplazamiento en lugar de ancho */
   overflow: hidden;
 }
 
 #sidebar.collapsed {
-  width: 0;
-  min-width: 0;
+  transform: translateX(-100%); /* Oculta el sidebar deslizándolo hacia la izquierda fuera de la pantalla */
+  width: 320px; /* Mantiene la estructura interna intacta al cerrarse */
+  min-width: 280px;
   border-right: none;
+  box-shadow: none;
 }
 
 .sidebar-header {
   padding: 16px;
   border-bottom: 1px solid var(--border);
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 8px;
 }
@@ -76,6 +85,8 @@ html, body {
 
 .toolbar {
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 5px;
 }
 
@@ -124,6 +135,7 @@ html, body {
 /* ========== WORKSPACE ========== */
 #workspace {
   flex: 1;
+  width: 100%; /* Ocupa siempre todo el ancho disponible */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -135,7 +147,7 @@ html, body {
   position: absolute;
   top: 12px;
   left: 12px;
-  z-index: 100;
+  z-index: 300; /* Por encima del sidebar (que tiene 200) */
   width: 42px;
   height: 42px;
   border-radius: 50%;
@@ -167,7 +179,7 @@ html, body {
 }
 
 .song-header {
-  padding: 16px 20px 16px 60px;
+  padding: 16px 20px 16px 65px; /* Margen izquierdo de 65px para dejar espacio al botón redondo */
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
@@ -347,7 +359,7 @@ html, body {
   border-radius: var(--radius);
   background: var(--bg-card);
   color: var(--text);
-  font-size: 13px;
+  font-size: 10px;
   cursor: pointer;
   min-width: 42px;
   min-height: 38px;
