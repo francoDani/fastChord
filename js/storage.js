@@ -47,24 +47,92 @@ const Storage = (function () {
 
   // ========== Carga de canciones por defecto ==========
   function loadDefaultSongs() {
-    // 1. Intentamos cargar desde data/songs.json (funciona en GitHub Pages)
-    return fetch('data/songs.json')
-      .then(function (response) {
-        if (!response.ok) throw new Error('No se encontró data/songs.json');
-        return response.json();
-      })
-      .then(function (songs) {
-        return prepareAndSave(songs);
-      })
-      .catch(function () {
-        // 2. Fallback: usar SEED_SONGS si existe (para uso local)
-        if (typeof SEED_SONGS !== 'undefined' && Array.isArray(SEED_SONGS) && SEED_SONGS.length > 0) {
-          console.log('Usando SEED_SONGS (modo local)');
-          return prepareAndSave(SEED_SONGS);
-        }
+  // 1. Cargar el manifiesto
+  return fetch('data/manifest.json')
+    .then(function (response) {
+      if (!response.ok) throw new Error('No se encontró data/manifest.json');
+      return response.json();
+    })
+    .then(function (fileList) {
+      if (!Array.isArray(fileList) || fileList.length === 0) {
         return 0;
+      }
+
+      // 2. Cargar todos los archivos .txt en paralelo
+      const promises = fileList.map(function (filename) {
+        return fetch('data/songs/' + filename)
+          .then(function (res) {
+            if (!res.ok) throw new Error('No se pudo cargar ' + filename);
+            return res.text();
+          })
+          .then(function (text) {
+            return parseChordProText(text, filename);
+          })
+          .catch(function (err) {
+            console.warn(err.message);
+            return null;
+          });
       });
-  }
+
+      return Promise.all(promises);
+    })
+    .then(function (parsedSongs) {
+      // Filtrar los que fallaron
+      const validSongs = parsedSongs.filter(function (s) {
+        return s && s.title;
+      });
+
+      if (validSongs.length === 0) return 0;
+
+      const prepared = validSongs.map(function (s) {
+        return {
+          id: generateId(),
+          title: s.title,
+          artist: s.artist || '',
+          category: s.category || '',
+          youtube: s.youtube || '',
+          body: s.body || '',
+          notes: s.notes || '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+      });
+
+      saveAll(prepared);
+      return prepared.length;
+    })
+    .catch(function (err) {
+      console.warn('Error cargando canciones por defecto:', err.message);
+
+      // Fallback a SEED_SONGS si existe (para uso local)
+      if (typeof SEED_SONGS !== 'undefined' && Array.isArray(SEED_SONGS) && SEED_SONGS.length > 0) {
+        console.log('Usando SEED_SONGS como fallback');
+        return prepareAndSave(SEED_SONGS);
+      }
+      return 0;
+    });
+}
+
+function prepareAndSave(songs) {
+  if (!Array.isArray(songs) || songs.length === 0) return 0;
+
+  const prepared = songs.map(function (s) {
+    return {
+      id: generateId(),
+      title: s.title || 'Sin título',
+      artist: s.artist || '',
+      category: s.category || '',
+      youtube: s.youtube || '',
+      body: s.body || '',
+      notes: s.notes || '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  });
+
+  saveAll(prepared);
+  return prepared.length;
+}
 
   function prepareAndSave(songs) {
     if (!Array.isArray(songs) || songs.length === 0) return 0;
