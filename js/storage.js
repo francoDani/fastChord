@@ -31,16 +31,60 @@ const Storage = (function () {
 
   function update(id, data) {
     const songs = getAll();
-    const idx = songs.findIndex(s => s.id === id);
+    const idx = songs.findIndex(function (s) { return s.id === id; });
     if (idx === -1) return null;
-    songs[idx] = Object.assign({}, songs[idx], data, { updatedAt: new Date().toISOString() });
+    songs[idx] = Object.assign({}, songs[idx], data, {
+      updatedAt: new Date().toISOString()
+    });
     saveAll(songs);
     return songs[idx];
   }
 
   function remove(id) {
-    const songs = getAll().filter(s => s.id !== id);
+    const songs = getAll().filter(function (s) { return s.id !== id; });
     saveAll(songs);
+  }
+
+  // ========== Carga de canciones por defecto ==========
+  function loadDefaultSongs() {
+    // 1. Intentamos cargar desde data/songs.json (funciona en GitHub Pages)
+    return fetch('data/songs.json')
+      .then(function (response) {
+        if (!response.ok) throw new Error('No se encontró data/songs.json');
+        return response.json();
+      })
+      .then(function (songs) {
+        return prepareAndSave(songs);
+      })
+      .catch(function () {
+        // 2. Fallback: usar SEED_SONGS si existe (para uso local)
+        if (typeof SEED_SONGS !== 'undefined' && Array.isArray(SEED_SONGS) && SEED_SONGS.length > 0) {
+          console.log('Usando SEED_SONGS (modo local)');
+          return prepareAndSave(SEED_SONGS);
+        }
+        return 0;
+      });
+  }
+
+  function prepareAndSave(songs) {
+    if (!Array.isArray(songs) || songs.length === 0) return 0;
+
+    const prepared = songs.map(function (s) {
+      return {
+        id: generateId(),
+        title: s.title || 'Sin título',
+        artist: s.artist || '',
+        category: s.category || '',
+        youtube: s.youtube || '',
+        body: s.body || '',
+        notes: s.notes || '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    });
+
+    saveAll(prepared);
+    return prepared.length;
   }
 
   // ========== JSON ==========
@@ -126,9 +170,9 @@ const Storage = (function () {
       if (
         sectionHeaders.some(function (h) {
           return lowerSection === h ||
-            lowerSection.startsWith(h + ' ') ||
-            lowerSection.startsWith(h + ':') ||
-            lowerSection.startsWith(h + ' -');
+                 lowerSection.startsWith(h + ' ') ||
+                 lowerSection.startsWith(h + ':') ||
+                 lowerSection.startsWith(h + ' -');
         }) ||
         /^verse\s*\d*/i.test(cleanSection) ||
         /^chorus\s*\d*/i.test(cleanSection) ||
@@ -144,7 +188,7 @@ const Storage = (function () {
         return;
       }
 
-      // Heurística OnSong (1ª línea = título, 2ª = artista)
+      // Heurística OnSong
       if (!foundMeta && !meta.title && lineIndex === 0 && line.length > 0) {
         meta.title = line;
         lineIndex++;
@@ -226,14 +270,14 @@ const Storage = (function () {
             if (parsed.title) {
               const exists = getAll().some(function (s) {
                 return s.title.toLowerCase() === parsed.title.toLowerCase() &&
-                  (s.artist || '').toLowerCase() === (parsed.artist || '').toLowerCase();
+                       (s.artist || '').toLowerCase() === (parsed.artist || '').toLowerCase();
               });
               if (!exists) {
                 add(parsed);
                 added++;
               }
             }
-          } catch (err) { }
+          } catch (err) {}
           processed++;
           if (processed === files.length) resolve(added);
         };
@@ -264,6 +308,7 @@ const Storage = (function () {
     add: add,
     update: update,
     remove: remove,
+    loadDefaultSongs: loadDefaultSongs,
     exportJSON: exportJSON,
     importJSON: importJSON,
     exportSongAsTxt: exportSongAsTxt,

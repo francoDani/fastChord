@@ -1,5 +1,17 @@
 document.addEventListener('DOMContentLoaded', function () {
-  UI.refreshList();
+
+  // Cargar canciones por defecto solo si localStorage está vacío
+  const existing = Storage.getAll();
+  if (existing.length === 0) {
+    Storage.loadDefaultSongs().then(function (count) {
+      if (count > 0) {
+        console.log('Se cargaron ' + count + ' canciones por defecto');
+      }
+      UI.refreshList();
+    });
+  } else {
+    UI.refreshList();
+  }
 
   const els = UI.getElements();
 
@@ -13,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
     UI.refreshList(els.searchInput.value, this.value);
   });
 
-  // Nueva
+  // Nueva canción
   document.getElementById('btn-new').addEventListener('click', function () {
     UI.openForm();
   });
@@ -27,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Guardar
+  // Guardar formulario
   document.getElementById('form-song').addEventListener('submit', function (e) {
     e.preventDefault();
     const data = {
@@ -56,12 +68,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Editar
   document.getElementById('btn-edit').addEventListener('click', function () {
+    if (window.stopAutoScroll) window.stopAutoScroll();
     const id = UI.getCurrentSongId();
     if (!id) return;
     const song = Storage.getAll().find(function (s) { return s.id === id; });
     UI.openForm(song);
-    
-    if (window.stopAutoScroll) window.stopAutoScroll();
   });
 
   // Eliminar
@@ -118,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
     this.value = '';
   });
 
-  // TXT
+  // TXT / OnSong
   document.getElementById('btn-export-txt').addEventListener('click', function () {
     const id = UI.getCurrentSongId();
     if (!id) {
@@ -162,16 +173,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Empezar colapsado en tablets
   if (window.innerWidth < 900) {
     sidebar.classList.add('collapsed');
     btnToggle.textContent = '☰';
   }
-    // ====================== AUTO-SCROLL ======================
+
+  // ====================== AUTO-SCROLL ======================
   let autoScrollInterval = null;
   let isAutoScrolling = false;
-  const SCROLL_SPEED = 1.2; // píxeles por tick (ajusta si quieres más lento/rápido)
-  const SCROLL_INTERVAL = 50; // ms (más bajo = más suave)
+  const SCROLL_SPEED = 1.2;
+  const SCROLL_INTERVAL = 50;
 
   const btnAutoScroll = document.getElementById('btn-autoscroll');
   const chordDisplay = document.getElementById('chord-display');
@@ -185,10 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   function startAutoScroll() {
-    // Solo funciona si hay una canción visible
-    if (document.getElementById('song-view').classList.contains('hidden')) {
-      return;
-    }
+    if (document.getElementById('song-view').classList.contains('hidden')) return;
 
     isAutoScrolling = true;
     btnAutoScroll.classList.add('active');
@@ -196,12 +204,10 @@ document.addEventListener('DOMContentLoaded', function () {
     btnAutoScroll.title = 'Detener Auto-scroll';
 
     autoScrollInterval = setInterval(function () {
-      // Si ya llegó al final → detener
       if (chordDisplay.scrollTop + chordDisplay.clientHeight >= chordDisplay.scrollHeight - 5) {
         stopAutoScroll();
         return;
       }
-
       chordDisplay.scrollTop += SCROLL_SPEED;
     }, SCROLL_INTERVAL);
   }
@@ -218,7 +224,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Detener auto-scroll cuando se cambia de canción o se edita
-  // (se puede llamar desde otros sitios si quieres)
   window.stopAutoScroll = stopAutoScroll;
 });
