@@ -1,7 +1,9 @@
 const Storage = (function () {
   const KEY = 'cancionero_pro_songs_v1';
+  const DEFAULT_NOTES_KEY = 'cancionero_pro_default_notes_v1';
+  let defaultSongs = [];
 
-  function getAll() {
+  function getUserSongs() {
     try {
       const data = localStorage.getItem(KEY);
       return data ? JSON.parse(data) : [];
@@ -9,6 +11,10 @@ const Storage = (function () {
       console.error('Error leyendo localStorage', e);
       return [];
     }
+  }
+
+  function getAll() {
+    return defaultSongs.concat(getUserSongs());
   }
 
   function saveAll(songs) {
@@ -20,8 +26,9 @@ const Storage = (function () {
   }
 
   function add(song) {
-    const songs = getAll();
+    const songs = getUserSongs();
     song.id = generateId();
+    song.isDefault = false;
     song.createdAt = new Date().toISOString();
     song.updatedAt = song.createdAt;
     songs.push(song);
@@ -30,7 +37,7 @@ const Storage = (function () {
   }
 
   function update(id, data) {
-    const songs = getAll();
+    const songs = getUserSongs();
     const idx = songs.findIndex(function (s) { return s.id === id; });
     if (idx === -1) return null;
     songs[idx] = Object.assign({}, songs[idx], data, {
@@ -41,8 +48,54 @@ const Storage = (function () {
   }
 
   function remove(id) {
-    const songs = getAll().filter(function (s) { return s.id !== id; });
+    const songs = getUserSongs().filter(function (s) { return s.id !== id; });
     saveAll(songs);
+  }
+
+  function getDefaultNotes() {
+    try {
+      const data = localStorage.getItem(DEFAULT_NOTES_KEY);
+      return data ? JSON.parse(data) : {};
+    } catch (e) {
+      console.error('Error leyendo notas de canciones predeterminadas', e);
+      return {};
+    }
+  }
+
+  function saveDefaultNotes(notes) {
+    localStorage.setItem(DEFAULT_NOTES_KEY, JSON.stringify(notes));
+  }
+
+  function updateNotes(id, notes) {
+    const defaultSong = defaultSongs.find(function (song) { return song.id === id; });
+    if (defaultSong) {
+      const defaultNotes = getDefaultNotes();
+      defaultNotes[defaultSong.source] = notes;
+      saveDefaultNotes(defaultNotes);
+      defaultSong.notes = notes;
+      return defaultSong;
+    }
+    return update(id, { notes: notes });
+  }
+
+  function migrateLegacyDefaults(defaultSongsFromFiles) {
+    const currentSongs = getUserSongs();
+    const defaultNotes = getDefaultNotes();
+    const defaultKeys = {};
+    defaultSongsFromFiles.forEach(function (song) {
+      defaultKeys[(song.title || '').toLowerCase() + '|' + (song.artist || '').toLowerCase()] = song.source;
+    });
+
+    const userSongs = currentSongs.filter(function (song) {
+      const key = (song.title || '').toLowerCase() + '|' + (song.artist || '').toLowerCase();
+      const source = defaultKeys[key];
+      if (!source || song.isDefault === false) return true;
+      if (song.notes && !defaultNotes[source]) defaultNotes[source] = song.notes;
+      return false;
+    });
+
+    saveAll(userSongs);
+    saveDefaultNotes(defaultNotes);
   }
 
   // ========== Carga de canciones por defecto ==========
@@ -66,7 +119,9 @@ const Storage = (function () {
               return res.text();
             })
             .then(function (text) {
-              return parseChordProText(text, filename);
+              const song = parseChordProText(text, filename);
+              song.source = filename;
+              return song;
             })
             .catch(function (err) {
               console.warn(err.message);
@@ -83,38 +138,23 @@ const Storage = (function () {
 
         if (validSongs.length === 0) return 0;
 
-        const currentSongs = getAll();
-        let addedCount = 0;
-
-        validSongs.forEach(function (s) {
-          // Comprobar si la canción ya existe en el almacenamiento local
-          const exists = currentSongs.some(function (existing) {
-            return existing.title.toLowerCase() === s.title.toLowerCase() &&
-              (existing.artist || '').toLowerCase() === (s.artist || '').toLowerCase();
-          });
-
-          // Si no existe, la añadimos como nueva respetando las demás
-          if (!exists) {
-            currentSongs.push({
-              id: generateId(),
-              title: s.title,
-              artist: s.artist || '',
-              category: s.category || '',
-              youtube: s.youtube || '',
-              body: s.body || '',
-              notes: s.notes || '',
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            });
-            addedCount++;
-          }
+        migrateLegacyDefaults(validSongs);
+        const defaultNotes = getDefaultNotes();
+        defaultSongs = validSongs.map(function (song) {
+          const source = song.source;
+          return {
+            id: 'default:' + source,
+            source: source,
+            isDefault: true,
+            title: song.title,
+            artist: song.artist || '',
+            category: song.category || '',
+            youtube: song.youtube || '',
+            body: song.body || '',
+            notes: defaultNotes[source] || ''
+          };
         });
-
-        if (addedCount > 0) {
-          saveAll(currentSongs);
-          console.log('Se añadieron ' + addedCount + ' canciones nuevas desde el manifest.');
-        }
-        return addedCount;
+        return defaultSongs.length;
       })
       .catch(function (err) {
         console.warn('Error al sincronizar canciones:', err.message);
@@ -178,7 +218,15 @@ const Storage = (function () {
         try {
           const imported = JSON.parse(e.target.result);
           if (!Array.isArray(imported)) throw new Error('El JSON debe ser un array');
-          saveAll(imported);
+          const userSongs = imported.map(function (song) {
+            const copy = Object.assign({}, song);
+            delete copy.isDefault;
+            delete copy.source;
+            copy.id = copy.id || generateId();
+            copy.isDefault = false;
+            return copy;
+          });
+          saveAll(userSongs);
           resolve(imported.length);
         } catch (err) {
           reject(err);
@@ -385,6 +433,7 @@ const Storage = (function () {
     add: add,
     update: update,
     remove: remove,
+    updateNotes: updateNotes,
     loadDefaultSongs: loadDefaultSongs,
     exportJSON: exportJSON,
     importJSON: importJSON,

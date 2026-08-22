@@ -17,6 +17,8 @@ const UI = (function () {
     songNotes: document.getElementById('song-notes'),
     transposeValue: document.getElementById('transpose-value'),
     btnYoutube: document.getElementById('btn-youtube'),
+    btnEdit: document.getElementById('btn-edit'),
+    btnDelete: document.getElementById('btn-delete'),
     formTitle: document.getElementById('form-title'),
     formTitleInput: document.getElementById('form-title-input'),
     formArtist: document.getElementById('form-artist'),
@@ -144,6 +146,8 @@ const UI = (function () {
     }
     els.songNotes.value = song.notes || '';
     els.transposeValue.textContent = '0';
+    els.btnEdit.disabled = !!song.isDefault;
+    els.btnDelete.disabled = !!song.isDefault;
 
     if (song.youtube) {
       els.btnYoutube.href = song.youtube;
@@ -196,6 +200,29 @@ const UI = (function () {
     Storage.update(currentSongId, { notes: this.value });
   });
 
+    function saveNotes() {
+      if (!currentSongId) return;
+
+      const notes = els.songNotes.value;
+      Storage.updateNotes(currentSongId, notes);
+
+      const song = songsCache.find(function (s) { return s.id === currentSongId; });
+      if (song) song.notes = notes;
+
+      const btn = document.getElementById('btn-save-notes');
+      if (btn) {
+        const original = btn.textContent;
+        btn.textContent = '✓ Guardado';
+        btn.disabled = true;
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.disabled = false;
+        }, 1200);
+      }
+    }
+
+    document.getElementById('btn-save-notes').addEventListener('click', saveNotes);
+
   return {
     refreshList: refreshList,
     selectSong: selectSong,
@@ -210,37 +237,4 @@ const UI = (function () {
     },
     getElements: function () { return els; }
   };
-  // Guardar notas automáticamente + botón manual
-  function saveNotes() {
-    if (!currentSongId) return;
-
-    const notes = els.songNotes.value;
-    Storage.update(currentSongId, { notes: notes });
-
-    // Actualizar también el caché en memoria
-    const song = songsCache.find(function (s) { return s.id === currentSongId; });
-    if (song) {
-      song.notes = notes;
-    }
-
-    // Feedback visual rápido
-    const btn = document.getElementById('btn-save-notes');
-    if (btn) {
-      const original = btn.textContent;
-      btn.textContent = '✓ Guardado';
-      btn.disabled = true;
-      setTimeout(function () {
-        btn.textContent = original;
-        btn.disabled = false;
-      }, 1200);
-    }
-  }
-
-  els.songNotes.addEventListener('input', function () {
-    // Guardado automático suave (opcional)
-    // saveNotes();   ← puedes descomentar si quieres guardado al escribir
-  });
-
-  // Botón de guardado manual
-  document.getElementById('btn-save-notes').addEventListener('click', saveNotes);
 })();

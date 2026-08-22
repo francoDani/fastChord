@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const id = UI.getCurrentSongId();
     if (!id) return;
     const song = Storage.getAll().find(function (s) { return s.id === id; });
+    if (!song || song.isDefault) return;
     UI.openForm(song);
   });
 
@@ -74,6 +75,8 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('btn-delete').addEventListener('click', function () {
     const id = UI.getCurrentSongId();
     if (!id) return;
+    const song = Storage.getAll().find(function (s) { return s.id === id; });
+    if (!song || song.isDefault) return;
     if (confirm('¿Eliminar esta canción?')) {
       Storage.remove(id);
       UI.showView('empty');
