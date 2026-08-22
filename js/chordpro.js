@@ -59,21 +59,22 @@ const ChordPro = (function () {
     const lines = text.split(/\r?\n/);
     let html = '';
 
-    lines.forEach(function (rawLine) {
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+      const rawLine = lines[lineIndex];
       const line = rawLine.trim();
 
       // Encabezado de sección
       if (line.indexOf('§SECTION§') === 0) {
         const sectionName = line.replace('§SECTION§', '').trim();
         html += '<div class="section-header">' + escapeHtml(sectionName) + '</div>';
-        return;
+        continue;
       }
 
       // Compatibilidad con el formato anterior {comment: Verse 1}
       const commentMatch = line.match(/^\{comment\s*:\s*(.+?)\}\s*$/i);
       if (commentMatch) {
         html += '<div class="section-header">' + escapeHtml(commentMatch[1].trim()) + '</div>';
-        return;
+        continue;
       }
 
       const chordRegex = /\[([^\]]+)\]/g;
@@ -95,7 +96,7 @@ const ChordPro = (function () {
 
       if (chords.length === 0) {
         html += '<div class="chord-line"><div class="lyrics">' + escapeHtml(cleaned) + '</div></div>';
-        return;
+        continue;
       }
 
       let chordLine = '';
@@ -109,15 +110,26 @@ const ChordPro = (function () {
 
       const lyricsHtml = cleaned.trim()
         ? '<div class="lyrics">' + escapeHtml(cleaned) + '</div>'
-        : '';
+        : getFollowingLyrics(lines, lineIndex);
+
+      if (!cleaned.trim() && lyricsHtml) lineIndex++;
 
       html += '<div class="chord-line">' +
         '<div class="chords">' + escapeHtml(chordLine) + '</div>' +
         lyricsHtml +
         '</div>';
-    });
+    }
 
     return html;
+  }
+
+  function getFollowingLyrics(lines, lineIndex) {
+    const nextLine = lines[lineIndex + 1];
+    const nextTrimmed = nextLine ? nextLine.trim() : '';
+    if (!nextTrimmed || /\[[^\]]+\]/.test(nextLine) ||
+      nextTrimmed.indexOf('§SECTION§') === 0 ||
+      /^\{comment\s*:/i.test(nextTrimmed)) return '';
+    return '<div class="lyrics">' + escapeHtml(nextLine) + '</div>';
   }
 
   return {

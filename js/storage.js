@@ -294,6 +294,11 @@ const Storage = (function () {
 
       if (
         sectionHeaders.some(function (h) {
+          if (h === 'solo') {
+            return lowerSection === h ||
+              lowerSection.startsWith(h + ':') ||
+              lowerSection.startsWith(h + ' -');
+          }
           return lowerSection === h ||
             lowerSection.startsWith(h + ' ') ||
             lowerSection.startsWith(h + ':') ||
