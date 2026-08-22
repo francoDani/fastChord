@@ -51,7 +51,12 @@ const UI = (function () {
     }
 
     if (category) {
-      filtered = filtered.filter(function (s) { return s.category === category; });
+      filtered = filtered.filter(function (s) {
+        if (!s.category) return false;
+        // Divide por comas y limpia espacios para buscar coincidencia
+        const songCats = s.category.split(',').map(function (c) { return c.trim().toLowerCase(); });
+        return songCats.indexOf(category.toLowerCase()) !== -1;
+      });
     }
 
     els.songList.innerHTML = '';
@@ -71,7 +76,15 @@ const UI = (function () {
   function updateCategoryFilter() {
     const cats = [];
     songsCache.forEach(function (s) {
-      if (s.category && cats.indexOf(s.category) === -1) cats.push(s.category);
+      if (s.category) {
+        // Separa por comas, limpia espacios y agrega las únicas
+        s.category.split(',').forEach(function (c) {
+          const clean = c.trim();
+          if (clean && cats.indexOf(clean) === -1) {
+            cats.push(clean);
+          }
+        });
+      }
     });
     cats.sort();
 
@@ -112,8 +125,23 @@ const UI = (function () {
     showView('view');
     els.songTitle.textContent = song.title;
     els.songArtist.textContent = song.artist || '';
-    els.songCategory.textContent = song.category || '';
-    els.songCategory.style.display = song.category ? 'inline-block' : 'none';
+    els.songCategory.innerHTML = '';
+    if (song.category) {
+      const cats = song.category.split(',');
+      cats.forEach(function (c) {
+        const clean = c.trim();
+        if (clean) {
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = clean;
+          els.songCategory.appendChild(badge);
+        }
+      });
+      els.songCategory.style.display = 'inline-flex';
+      els.songCategory.style.gap = '4px';
+    } else {
+      els.songCategory.style.display = 'none';
+    }
     els.songNotes.value = song.notes || '';
     els.transposeValue.textContent = '0';
 

@@ -228,3 +228,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.stopAutoScroll = stopAutoScroll;
 });
+
+// ====================== TOGGLE ACORDES ======================
+  const btnToggleChords = document.getElementById('btn-toggle-chords');
+  const chordDisplay = document.getElementById('chord-display');
+
+  if (btnToggleChords) {
+    btnToggleChords.addEventListener('click', function () {
+      chordDisplay.classList.toggle('hide-chords');
+      const isHidden = chordDisplay.classList.contains('hide-chords');
+      
+      // Cambiar el icono o estado visual del botón según prefieras
+      btnToggleChords.classList.toggle('active', isHidden);
+      btnToggleChords.title = isHidden ? "Mostrar acordes" : "Ocultar acordes";
+    });
+  }

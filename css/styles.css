@@ -472,3 +472,12 @@ html, body {
 #song-view.autoscrolling .song-header .song-meta {
   display: none;
 }
+/* Ocultar acordes cuando el contenedor tenga la clase hide-chords */
+#chord-display.hide-chords .chords {
+  display: none !important;
+}
+
+/* Opcional: ajustar el espaciado si solo queda la letra */
+#chord-display.hide-chords .chord-line {
+  margin-bottom: 0.6rem;
+}
