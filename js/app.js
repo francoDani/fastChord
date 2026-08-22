@@ -168,6 +168,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  document.getElementById('song-list').addEventListener('click', function () {
+    sidebar.classList.add('collapsed');
+    btnToggle.textContent = '☰';
+    btnToggle.title = 'Mostrar lista';
+  });
+
   if (window.innerWidth < 900) {
     sidebar.classList.add('collapsed');
     btnToggle.textContent = '☰';

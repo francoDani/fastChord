@@ -107,9 +107,13 @@ const ChordPro = (function () {
         currentPos = c.position + c.chord.length;
       });
 
+      const lyricsHtml = cleaned.trim()
+        ? '<div class="lyrics">' + escapeHtml(cleaned) + '</div>'
+        : '';
+
       html += '<div class="chord-line">' +
         '<div class="chords">' + escapeHtml(chordLine) + '</div>' +
-        '<div class="lyrics">' + escapeHtml(cleaned) + '</div>' +
+        lyricsHtml +
         '</div>';
     });
 
