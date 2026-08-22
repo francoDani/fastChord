@@ -1,17 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-  // Cargar canciones por defecto solo si localStorage está vacío
-  const existing = Storage.getAll();
-  if (existing.length === 0) {
-    Storage.loadDefaultSongs().then(function (count) {
-      if (count > 0) {
-        console.log('Se cargaron ' + count + ' canciones por defecto');
-      }
-      UI.refreshList();
-    });
-  } else {
+  // Sincronizar automáticamente canciones nuevas del manifest al iniciar
+  Storage.loadDefaultSongs().then(function (count) {
+    if (count > 0) {
+      console.log('Se añadieron ' + count + ' canciones nuevas');
+    }
     UI.refreshList();
-  }
+  });
 
   const els = UI.getElements();
 

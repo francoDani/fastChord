@@ -46,93 +46,102 @@ const Storage = (function () {
   }
 
   // ========== Carga de canciones por defecto ==========
+  // ========== Sincronización inteligente de canciones por defecto ==========
   function loadDefaultSongs() {
-  // 1. Cargar el manifiesto
-  return fetch('data/manifest.json')
-    .then(function (response) {
-      if (!response.ok) throw new Error('No se encontró data/manifest.json');
-      return response.json();
-    })
-    .then(function (fileList) {
-      if (!Array.isArray(fileList) || fileList.length === 0) {
-        return 0;
-      }
+    return fetch('data/manifest.json')
+      .then(function (response) {
+        if (!response.ok) throw new Error('No se encontró data/manifest.json');
+        return response.json();
+      })
+      .then(function (fileList) {
+        if (!Array.isArray(fileList) || fileList.length === 0) {
+          return 0;
+        }
 
-      // 2. Cargar todos los archivos .txt en paralelo
-      const promises = fileList.map(function (filename) {
-        return fetch('data/songs/' + filename)
-          .then(function (res) {
-            if (!res.ok) throw new Error('No se pudo cargar ' + filename);
-            return res.text();
-          })
-          .then(function (text) {
-            return parseChordProText(text, filename);
-          })
-          .catch(function (err) {
-            console.warn(err.message);
-            return null;
+        // Cargar todos los archivos .txt del manifest en paralelo
+        const promises = fileList.map(function (filename) {
+          return fetch('data/songs/' + filename)
+            .then(function (res) {
+              if (!res.ok) throw new Error('No se pudo cargar ' + filename);
+              return res.text();
+            })
+            .then(function (text) {
+              return parseChordProText(text, filename);
+            })
+            .catch(function (err) {
+              console.warn(err.message);
+              return null;
+            });
+        });
+
+        return Promise.all(promises);
+      })
+      .then(function (parsedSongs) {
+        const validSongs = parsedSongs.filter(function (s) {
+          return s && s.title;
+        });
+
+        if (validSongs.length === 0) return 0;
+
+        const currentSongs = getAll();
+        let addedCount = 0;
+
+        validSongs.forEach(function (s) {
+          // Comprobar si la canción ya existe en el almacenamiento local
+          const exists = currentSongs.some(function (existing) {
+            return existing.title.toLowerCase() === s.title.toLowerCase() &&
+              (existing.artist || '').toLowerCase() === (s.artist || '').toLowerCase();
           });
+
+          // Si no existe, la añadimos como nueva respetando las demás
+          if (!exists) {
+            currentSongs.push({
+              id: generateId(),
+              title: s.title,
+              artist: s.artist || '',
+              category: s.category || '',
+              youtube: s.youtube || '',
+              body: s.body || '',
+              notes: s.notes || '',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            });
+            addedCount++;
+          }
+        });
+
+        if (addedCount > 0) {
+          saveAll(currentSongs);
+          console.log('Se añadieron ' + addedCount + ' canciones nuevas desde el manifest.');
+        }
+        return addedCount;
+      })
+      .catch(function (err) {
+        console.warn('Error al sincronizar canciones:', err.message);
+        return 0;
       });
+  }
 
-      return Promise.all(promises);
-    })
-    .then(function (parsedSongs) {
-      // Filtrar los que fallaron
-      const validSongs = parsedSongs.filter(function (s) {
-        return s && s.title;
-      });
+  function prepareAndSave(songs) {
+    if (!Array.isArray(songs) || songs.length === 0) return 0;
 
-      if (validSongs.length === 0) return 0;
-
-      const prepared = validSongs.map(function (s) {
-        return {
-          id: generateId(),
-          title: s.title,
-          artist: s.artist || '',
-          category: s.category || '',
-          youtube: s.youtube || '',
-          body: s.body || '',
-          notes: s.notes || '',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-      });
-
-      saveAll(prepared);
-      return prepared.length;
-    })
-    .catch(function (err) {
-      console.warn('Error cargando canciones por defecto:', err.message);
-
-      // Fallback a SEED_SONGS si existe (para uso local)
-      if (typeof SEED_SONGS !== 'undefined' && Array.isArray(SEED_SONGS) && SEED_SONGS.length > 0) {
-        console.log('Usando SEED_SONGS como fallback');
-        return prepareAndSave(SEED_SONGS);
-      }
-      return 0;
+    const prepared = songs.map(function (s) {
+      return {
+        id: generateId(),
+        title: s.title || 'Sin título',
+        artist: s.artist || '',
+        category: s.category || '',
+        youtube: s.youtube || '',
+        body: s.body || '',
+        notes: s.notes || '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
     });
-}
 
-function prepareAndSave(songs) {
-  if (!Array.isArray(songs) || songs.length === 0) return 0;
-
-  const prepared = songs.map(function (s) {
-    return {
-      id: generateId(),
-      title: s.title || 'Sin título',
-      artist: s.artist || '',
-      category: s.category || '',
-      youtube: s.youtube || '',
-      body: s.body || '',
-      notes: s.notes || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-  });
-
-  saveAll(prepared);
-  return prepared.length;
-}
+    saveAll(prepared);
+    return prepared.length;
+  }
 
   function prepareAndSave(songs) {
     if (!Array.isArray(songs) || songs.length === 0) return 0;
@@ -238,9 +247,9 @@ function prepareAndSave(songs) {
       if (
         sectionHeaders.some(function (h) {
           return lowerSection === h ||
-                 lowerSection.startsWith(h + ' ') ||
-                 lowerSection.startsWith(h + ':') ||
-                 lowerSection.startsWith(h + ' -');
+            lowerSection.startsWith(h + ' ') ||
+            lowerSection.startsWith(h + ':') ||
+            lowerSection.startsWith(h + ' -');
         }) ||
         /^verse\s*\d*/i.test(cleanSection) ||
         /^chorus\s*\d*/i.test(cleanSection) ||
@@ -338,14 +347,14 @@ function prepareAndSave(songs) {
             if (parsed.title) {
               const exists = getAll().some(function (s) {
                 return s.title.toLowerCase() === parsed.title.toLowerCase() &&
-                       (s.artist || '').toLowerCase() === (parsed.artist || '').toLowerCase();
+                  (s.artist || '').toLowerCase() === (parsed.artist || '').toLowerCase();
               });
               if (!exists) {
                 add(parsed);
                 added++;
               }
             }
-          } catch (err) {}
+          } catch (err) { }
           processed++;
           if (processed === files.length) resolve(added);
         };
