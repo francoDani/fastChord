@@ -10,6 +10,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const els = UI.getElements();
 
+  const authButton = document.getElementById('btn-auth');
+  const authUser = document.getElementById('auth-user');
+
+  function applyAuthState(state) {
+    const signedIn = !!state.user;
+    const canEdit = state.role === 'editor' || state.role === 'admin';
+    authUser.textContent = signedIn
+      ? ((state.profile && state.profile.display_name) || state.user.email)
+      : '';
+    authButton.textContent = signedIn ? '↪' : '♙';
+    authButton.title = signedIn ? 'Cerrar sesión' : 'Iniciar sesión con Google';
+    authButton.onclick = function () {
+      (signedIn ? Auth.signOut() : Auth.signIn()).catch(function (error) {
+        console.error('Error de autenticación', error);
+        alert('No se pudo completar la autenticación.');
+      });
+    };
+    UI.setRole(state.role);
+    document.getElementById('btn-new').hidden = !canEdit;
+    document.getElementById('btn-import-json').hidden = !canEdit;
+    document.getElementById('btn-import-txt').hidden = !canEdit;
+  }
+
+  Auth.init(applyAuthState).catch(function (error) {
+    console.error('No se pudo inicializar la autenticación', error);
+    applyAuthState({ user: null, profile: null, role: 'readonly' });
+  });
+
   // Búsqueda
   els.searchInput.addEventListener('input', function () {
     UI.refreshList(this.value, els.categoryFilter.value);
@@ -67,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const id = UI.getCurrentSongId();
     if (!id) return;
     const song = Storage.getAll().find(function (s) { return s.id === id; });
-    if (!song || song.isDefault) return;
+    if (!song || song.isDefault || !Auth.canEdit()) return;
     UI.openForm(song);
   });
 
@@ -76,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const id = UI.getCurrentSongId();
     if (!id) return;
     const song = Storage.getAll().find(function (s) { return s.id === id; });
-    if (!song || song.isDefault) return;
+    if (!song || song.isDefault || !Auth.canEdit()) return;
     if (confirm('¿Eliminar esta canción?')) {
       Storage.remove(id);
       UI.showView('empty');

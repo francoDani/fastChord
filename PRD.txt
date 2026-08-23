@@ -1,0 +1,127 @@
+Product Requirements Document (PRD): Cancionero Pro (SPA Web con Backend Cloud)
+1. Visión y Resumen del Producto
+Cancionero Pro es una Aplicación de Página Única (SPA) web ultraligera, optimizada para ejecutarse en dispositivos de hardware limitado (como una tablet Philco antigua). Se publica como sitio estático en GitHub Pages y utiliza una base de datos cloud para compartir canciones y playlists, junto con persistencia local o cloud para las notas personales. Su propósito principal es servir como un lector y gestor colaborativo de letras y acordes musicales en formato ChordPro, con un diseño minimalista, tema oscuro nativo, legibilidad y velocidad.
+
+2. Objetivos y Alcance
+Independencia Tecnológica: Cero dependencias de servidores de aplicación, bases de datos externas o frameworks pesados de Android/Java. La SPA se sirve como archivos estáticos desde GitHub Pages y utiliza JavaScript y CSS nativos.
+
+Rendimiento Extremo: Diseñado para correr fluido en navegadores antiguos sin consumir memoria excesiva ni sobrecargar la CPU.
+
+Portabilidad de Datos: Almacenamiento local persistente (localStorage) para las canciones creadas o importadas por el usuario y para las notas personales. Las canciones incluidas con la aplicación se cargan desde sus archivos originales y no se duplican en el almacenamiento local. Se mantiene el soporte de respaldo físico mediante importación y exportación de archivos JSON hacia una tarjeta SD.
+
+Despliegue Web Estático: La aplicación se aloja en GitHub Pages. El acceso desde la tablet se realiza mediante la URL pública del repositorio, sin necesidad de instalar una aplicación nativa ni mantener un servidor propio. La SPA se conecta a Supabase como backend cloud gestionado.
+
+Colaboración Controlada: El catálogo y las playlists son compartidos entre los usuarios. Los visitantes no autenticados pueden consultar canciones y playlists públicas. Las operaciones de creación y edición requieren autenticación y rol editor o admin.
+
+Experiencia de Usuario (UX) Limpia: Interfaz de lectura sin distracciones, con tema oscuro por defecto, fuentes de alta legibilidad y controles táctiles sobrios.
+
+3. Requerimientos Funcionales (RF)
+3.1. Gestión de Biblioteca y Categorías
+RF-01 (Listado Alfabético): La aplicación debe mostrar un panel lateral izquierdo con el repertorio completo ordenado alfabéticamente por título de canción.
+
+RF-02 (Buscador en Tiempo Real): Filtrado dinámico de canciones mediante una barra de búsqueda que evalúa coincidencias en título y artista.
+
+RF-03 (Categorización y Filtros): Las canciones deben pertenecer a una categoría configurable y poder filtrarse mediante un selector desplegable.
+
+RF-04 (CRUD de Canciones): Capacidad para crear nuevas canciones desde la interfaz, editar sus metadatos y cuerpo en formato ChordPro, e importarlas o eliminarlas. Las canciones incluidas por defecto son de solo lectura: no pueden editarse ni eliminarse y siempre se vuelven a cargar desde los archivos originales del manifest.
+
+3.2. Visualizador de Canciones (Core Reader)
+RF-05 (Renderizado ChordPro): Interpretación mediante expresiones regulares de etiquetas de acordes ([Acorde]) para posicionarlos de forma limpia sobre la letra. El renderizador admite acordes en la misma línea que la letra y también agrupa una línea de acordes con la línea de letra inmediatamente posterior. Las líneas que solo contienen acordes no generan elementos de letra vacíos.
+
+RF-06 (Tema Oscuro Nítido): Interfaz basada en paletas oscuras con un color de acento diferenciado para los acordes (ej. azul claro/naranja suave) que facilite la lectura con poca iluminación ambiental.
+
+RF-07 (Transposición Dinámica): Herramienta matemática para subir o bajar la tonalidad de la canción completa en semitonos (+ / -) en tiempo real, sin alterar el archivo original guardado.
+
+3.3. Herramientas Avanzadas del Visualizador
+RF-08 (Auto-scroll): Sistema de desplazamiento automático vertical con control de encendido/apagado para permitir tocar sin usar las manos.
+
+RF-09 (Enlace Externo a YouTube): Campo de texto para registrar un enlace de referencia que se abre directamente en el navegador externo o app oficial mediante un botón dedicado.
+
+RF-10 (Anotaciones Persistentes): Sección de notas personales por canción. Una vez integrada la base cloud, las notas se guardan de forma persistente en Supabase mediante la combinación usuario/canción y no se comparten con el equipo. Durante la transición se admite la persistencia local existente.
+
+RF-11 (Biblioteca Protegida): Las canciones inicialmente listadas en data/manifest.json y data/songs/ se migran al catálogo oficial de Supabase. El manifest y los archivos locales quedan como respaldo de migración; la aplicación consulta el catálogo cloud. Todas las canciones oficiales muestran deshabilitadas las acciones de edición y eliminación para usuarios Read Only, mientras que los usuarios Editor y Admin pueden administrarlas según sus permisos.
+
+RF-12 (Autenticación y Roles): La aplicación debe permitir iniciar sesión, inicialmente mediante Google OAuth. Cada usuario tendrá uno de los roles Read Only, Editor o Admin. Read Only puede consultar contenido; Editor puede crear, corregir y realizar soft delete de canciones y playlists; Admin puede además gestionar roles y realizar hard delete. Deben existir dos administradores iniciales.
+
+RF-13 (Catálogo Cloud): Las canciones oficiales se almacenan en la base de datos cloud y están disponibles para todos los usuarios. Las canciones creadas o importadas por un editor se incorporan como contenido oficial compartido.
+
+RF-14 (Playlists Compartidas): Los usuarios Editor y Admin pueden crear y editar playlists públicas, agregar o quitar canciones y reordenarlas. Todos los usuarios pueden consultar las playlists públicas. Cada playlist debe mostrar siempre la versión actual de sus canciones.
+
+RF-15 (Borrado Controlado): El soft delete oculta canciones y playlists del uso normal sin borrar sus relaciones ni historial básico. Solo Admin puede realizar hard delete de canciones o playlists. Para proteger la integridad de los datos, una canción asociada a una playlist deberá retirarse de esas relaciones antes de un hard delete.
+
+4. Requerimientos No Funcionales (RNF)
+RNF-01 (Compatibilidad Web): El código debe estructurarse utilizando estándares de JavaScript (ES6+) compatibles con navegadores móviles de versiones anteriores.
+
+RNF-02 (Persistencia y Datos): Uso de Supabase para canciones, playlists, relaciones, usuarios y roles. Las notas personales pertenecen a la combinación usuario/canción y no se comparten con el equipo. La importación y exportación JSON se conserva como mecanismo de respaldo para usuarios autorizados. Durante la migración, localStorage solo conserva datos locales compatibles y preferencias del dispositivo.
+
+RNF-04 (Hosting Estático): La SPA debe poder publicarse y ejecutarse desde GitHub Pages, incluyendo sus archivos HTML, CSS y JavaScript. El backend cloud se aloja en Supabase y no requiere un servidor propio de la aplicación.
+
+RNF-05 (Seguridad de Autorización): Las reglas de permisos deben aplicarse mediante Row Level Security en Supabase, además de ocultarse o mostrarse en la interfaz. Ningún permiso editorial debe depender únicamente del código JavaScript del navegador.
+
+RNF-03 (Diseño Responsivo/Táctil): Botones de tamaño generoso y áreas táctiles amplias optimizadas para el uso directo en pantallas de tablets.
+
+5. Fases de Desarrollo (Roadmap)
+Fase 1: Estructura Base y UI de Listado (Completada en prototipo inicial)
+
+Maquetación del layout de dos columnas (Sidebar + Workspace) en tema oscuro.
+
+Lógica de listado alfabético y filtros por categoría.
+
+Fase 2: Motor de Acordes y Transposición (Completada en prototipo inicial)
+
+Parser de sintaxis ChordPro mediante Regex.
+
+Algoritmo de transposición musical sobre escalas cromáticas (sostenidos y bemoles).
+
+Fase 3: Herramientas de Apoyo, Utilidades y Protección de Contenido (Completada)
+
+Integración de auto-scroll, manejo de notas personales y enlace externo de YouTube.
+
+Mecanismos de importación y exportación de canciones de usuario en formato JSON para tarjeta SD.
+
+Separación de canciones predeterminadas y canciones del usuario.
+
+Bloqueo de edición y eliminación para canciones predeterminadas.
+
+Corrección del renderizado de líneas de acordes independientes, líneas de letra y encabezados de sección.
+
+Migración de copias antiguas de canciones predeterminadas, conservando sus notas personales.
+
+Fase 4: Despliegue y Pruebas de Campo en Hardware Real (Completada)
+
+Publicación de la SPA completa, incluyendo data/, en GitHub Pages.
+
+Acceso a la aplicación alojada desde la tablet Philco mediante la URL de GitHub Pages.
+
+Validación exitosa de la carga de todas las canciones del manifest y del renderizado de canciones con acordes en líneas separadas.
+
+Validación exitosa de la persistencia de notas personales tras cerrar y volver a abrir la aplicación.
+
+Validación exitosa del bloqueo de edición y eliminación de canciones predeterminadas.
+
+Validación exitosa de la administración de canciones creadas o importadas por el usuario.
+
+Validación exitosa de importación y exportación JSON de canciones del usuario y notas personales.
+
+Fase 5: Backend Cloud, Autenticación y Colaboración (Planificada)
+
+Definir el esquema cloud para perfiles, roles, canciones, notas personales, playlists y relaciones playlist-canción.
+
+Configurar Supabase Auth con Google OAuth y crear los dos administradores iniciales.
+
+Migrar el catálogo predeterminado desde data/manifest.json y data/songs/ a la base cloud.
+
+Implementar Row Level Security para lectura pública, edición de editores, administración de roles y hard delete de administradores.
+
+Adaptar la capa Storage de la SPA para consultar Supabase y conservar las notas privadas por usuario y canción.
+
+Implementar el menú compacto de acciones, la sesión de usuario y las funciones editoriales.
+
+Diseñar e implementar la experiencia de playlists compartidas.
+
+6. Estado Actual y Siguiente Paso
+
+El producto base cumple el alcance inicial y la prueba de campo en hardware real está aprobada. Se definió la evolución hacia un backend cloud colaborativo con Supabase. El siguiente paso técnico es crear y revisar la primera migración SQL, configurar el proyecto Supabase y establecer los dos administradores iniciales. Después se integrará autenticación y se migrará progresivamente la capa de datos de la SPA.
+
+
+27nuKk5z5ZOFne1N

@@ -15,6 +15,10 @@
         <aside id="sidebar">
             <header class="sidebar-header">
                 <h1>Fast Chord</h1>
+                <div class="auth-controls">
+                    <span id="auth-user" class="auth-user"></span>
+                    <button id="btn-auth" class="btn btn-icon" title="Iniciar sesión">♙</button>
+                </div>
 
             </header>
             <div class="toolbar">
@@ -109,6 +113,9 @@
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/chordpro.js"></script>
     <script src="js/ui.js"></script>

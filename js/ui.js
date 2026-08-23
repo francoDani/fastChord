@@ -28,6 +28,8 @@ const UI = (function () {
     categoryList: document.getElementById('category-list')
   };
 
+  let currentRole = 'readonly';
+
   function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -146,8 +148,7 @@ const UI = (function () {
     }
     els.songNotes.value = song.notes || '';
     els.transposeValue.textContent = '0';
-    els.btnEdit.disabled = !!song.isDefault;
-    els.btnDelete.disabled = !!song.isDefault;
+    updateSongActions(song);
 
     if (song.youtube) {
       els.btnYoutube.href = song.youtube;
@@ -175,6 +176,7 @@ const UI = (function () {
   }
 
   function openForm(song) {
+    if (song && currentRole !== 'editor' && currentRole !== 'admin') return;
     showView('form');
     if (song) {
       els.formTitle.textContent = 'Editar canción';
@@ -197,8 +199,23 @@ const UI = (function () {
 
   els.songNotes.addEventListener('input', function () {
     if (!currentSongId) return;
-    Storage.update(currentSongId, { notes: this.value });
+    Storage.updateNotes(currentSongId, this.value);
   });
+
+  function updateSongActions(song) {
+    const canEditSong = song && !song.isDefault &&
+      (currentRole === 'editor' || currentRole === 'admin');
+    els.btnEdit.disabled = !canEditSong;
+    els.btnDelete.disabled = !canEditSong;
+  }
+
+  function setRole(role) {
+    currentRole = role || 'readonly';
+    if (currentSongId) {
+      const song = Storage.getAll().find(function (item) { return item.id === currentSongId; });
+      updateSongActions(song);
+    }
+  }
 
     function saveNotes() {
       if (!currentSongId) return;
@@ -235,6 +252,7 @@ const UI = (function () {
       currentTranspose = val;
       els.transposeValue.textContent = val > 0 ? '+' + val : val;
     },
+    setRole: setRole,
     getElements: function () { return els; }
   };
 })();
