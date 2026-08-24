@@ -121,7 +121,9 @@ El menú compacto de creación, importación y exportación ya está implementad
 
 La creación, edición y soft delete de canciones ya están conectados a Supabase. El hard delete administrativo queda explícitamente pospuesto.
 
-Diseñar e implementar la experiencia de playlists compartidas.
+Se inició la implementación de playlists: panel autenticado, botón magenta para usuarios Editor/Admin y formulario con los momentos litúrgicos en orden fijo, filtros por categoría y múltiples canciones en Comunión.
+
+Completar la experiencia de playlists compartidas: edición, soft delete, vista pública mediante link único con hash y navegación anterior/siguiente.
 
 6. Estado Actual y Siguiente Paso
 

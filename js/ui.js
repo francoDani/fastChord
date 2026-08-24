@@ -10,6 +10,8 @@ const UI = (function () {
     emptyState: document.getElementById('empty-state'),
     songView: document.getElementById('song-view'),
     songForm: document.getElementById('song-form'),
+    playlistForm: document.getElementById('playlist-form'),
+    playlistView: document.getElementById('playlist-view'),
     chordDisplay: document.getElementById('chord-display'),
     songTitle: document.getElementById('song-title'),
     songArtist: document.getElementById('song-artist'),
@@ -25,6 +27,8 @@ const UI = (function () {
     formCategory: document.getElementById('form-category'),
     formYoutube: document.getElementById('form-youtube'),
     formBody: document.getElementById('form-body'),
+    categoryOptions: document.getElementById('category-options'),
+    categorySummary: document.getElementById('category-summary'),
     categoryList: document.getElementById('category-list')
   };
 
@@ -175,9 +179,13 @@ const UI = (function () {
     els.emptyState.classList.add('hidden');
     els.songView.classList.add('hidden');
     els.songForm.classList.add('hidden');
+    els.playlistForm.classList.add('hidden');
+    els.playlistView.classList.add('hidden');
 
     if (mode === 'view') els.songView.classList.remove('hidden');
     else if (mode === 'form') els.songForm.classList.remove('hidden');
+    else if (mode === 'playlist-form') els.playlistForm.classList.remove('hidden');
+    else if (mode === 'playlist-view') els.playlistView.classList.remove('hidden');
     else els.emptyState.classList.remove('hidden');
   }
 
@@ -188,7 +196,13 @@ const UI = (function () {
       els.formTitle.textContent = 'Editar canción';
       els.formTitleInput.value = song.title || '';
       els.formArtist.value = song.artist || '';
-      els.formCategory.value = song.category || '';
+      const songCategories = (song.category || '').split(',').map(function (category) {
+        return normalizeCategory(category.trim());
+      });
+      Array.prototype.forEach.call(els.categoryOptions.querySelectorAll('input'), function (option) {
+        option.checked = songCategories.indexOf(normalizeCategory(option.value)) !== -1;
+      });
+      updateCategorySummary();
       els.formYoutube.value = song.youtube || '';
       els.formBody.value = song.body || '';
       currentSongId = song.id;
@@ -196,7 +210,10 @@ const UI = (function () {
       els.formTitle.textContent = 'Nueva canción';
       els.formTitleInput.value = '';
       els.formArtist.value = '';
-      els.formCategory.value = '';
+      Array.prototype.forEach.call(els.categoryOptions.querySelectorAll('input'), function (option) {
+        option.checked = false;
+      });
+      updateCategorySummary();
       els.formYoutube.value = '';
       els.formBody.value = '';
       currentSongId = null;
@@ -214,6 +231,19 @@ const UI = (function () {
     els.btnEdit.disabled = !canEditSong;
     els.btnDelete.disabled = !canEditSong;
   }
+
+  function updateCategorySummary() {
+    const values = Array.prototype.slice.call(els.categoryOptions.querySelectorAll('input:checked'))
+      .map(function (input) { return input.parentNode.textContent.trim(); });
+    els.formCategory.value = values.join(', ');
+    els.categorySummary.textContent = values.length ? values.join(', ') : 'Seleccionar categorías';
+  }
+
+  function normalizeCategory(value) {
+    return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  els.categoryOptions.addEventListener('change', updateCategorySummary);
 
   function isCloudSong(song) {
     return !!song && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(song.id);

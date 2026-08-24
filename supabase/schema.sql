@@ -50,7 +50,7 @@ create table public.playlist_songs (
   playlist_id uuid not null references public.playlists(id) on delete cascade,
   song_id uuid not null references public.songs(id) on delete restrict,
   position integer not null check (position >= 0),
-  primary key (playlist_id, song_id),
+  primary key (playlist_id, slot, song_id),
   unique (playlist_id, position)
 );
 

@@ -22,6 +22,110 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     UI.setRole(state.role);
     document.getElementById('editor-actions').hidden = !canEdit;
+    document.getElementById('playlists-panel').classList.toggle('hidden', !signedIn);
+    loadPlaylists(signedIn);
+  }
+
+  function loadPlaylists(signedIn) {
+    const list = document.getElementById('playlist-list');
+    if (!signedIn) {
+      list.innerHTML = '';
+      return;
+    }
+    Playlists.loadAll().then(function (playlists) {
+      list.innerHTML = '';
+      playlists.forEach(function (playlist) {
+        const item = document.createElement('li');
+        item.textContent = playlist.name;
+        item.title = 'Abrir playlist';
+        item.addEventListener('click', function () { openPlaylist(playlist); });
+        list.appendChild(item);
+      });
+    }).catch(function (error) {
+      console.error('Error cargando playlists', error);
+    });
+  }
+
+  function openPlaylist(playlist) {
+    const songs = (playlist.playlist_songs || []).slice().sort(function (a, b) {
+      return a.position - b.position;
+    }).map(function (item) { return item.songs; }).filter(Boolean);
+    document.getElementById('playlist-view-title').textContent = playlist.name;
+    document.getElementById('playlist-view-description').textContent = playlist.description || '';
+    const list = document.getElementById('playlist-song-list');
+    list.innerHTML = '';
+    songs.forEach(function (song) {
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.className = 'playlist-song-button';
+      button.textContent = song.title;
+      button.addEventListener('click', function () {
+        UI.selectSong(song.id);
+        document.getElementById('sidebar').classList.add('collapsed');
+      });
+      item.appendChild(button);
+      list.appendChild(item);
+    });
+    UI.showView('playlist-view');
+  }
+
+  function buildPlaylistSlots() {
+    const container = document.getElementById('playlist-slots');
+    const songs = Storage.getAll();
+    container.innerHTML = '';
+    Playlists.getSlots().forEach(function (slot) {
+      const label = document.createElement('label');
+      label.textContent = slot.label + (slot.required ? ' *' : '');
+      if (slot.multiple) {
+        const dropdown = document.createElement('details');
+        dropdown.className = 'playlist-multi-dropdown';
+        dropdown.dataset.slot = slot.key;
+        const summary = document.createElement('summary');
+        summary.textContent = 'Seleccionar canciones';
+        dropdown.appendChild(summary);
+        const options = document.createElement('div');
+        options.className = 'playlist-multi-options';
+        songs.filter(function (song) {
+          return (song.category || '').split(',').some(function (category) {
+            return normalizeCategory(category) === normalizeCategory(slot.label);
+          });
+        }).forEach(function (song) {
+          const optionLabel = document.createElement('label');
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = song.id;
+          optionLabel.appendChild(checkbox);
+          optionLabel.appendChild(document.createTextNode(song.title));
+          options.appendChild(optionLabel);
+        });
+        dropdown.appendChild(options);
+        label.appendChild(dropdown);
+      } else {
+        const select = document.createElement('select');
+        select.dataset.slot = slot.key;
+        const empty = document.createElement('option');
+        empty.value = '';
+        empty.textContent = 'Seleccionar canción';
+        select.appendChild(empty);
+        songs.filter(function (song) {
+          return (song.category || '').split(',').some(function (category) {
+            return normalizeCategory(category) === normalizeCategory(slot.label);
+          });
+        }).forEach(function (song) {
+          const option = document.createElement('option');
+          option.value = song.id;
+          option.textContent = song.title;
+          select.appendChild(option);
+        });
+        if (slot.required) select.required = true;
+        label.appendChild(select);
+      }
+      container.appendChild(label);
+    });
+  }
+
+  function normalizeCategory(value) {
+    return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
   Auth.init(applyAuthState)
@@ -65,6 +169,42 @@ document.addEventListener('DOMContentLoaded', function () {
     sidebar.classList.add('collapsed');
   });
 
+  document.getElementById('btn-new-playlist').addEventListener('click', function () {
+    buildPlaylistSlots();
+    UI.showView('playlist-form');
+  });
+
+  document.getElementById('btn-back-playlists').addEventListener('click', function () {
+    UI.showView('empty');
+  });
+
+  document.getElementById('btn-cancel-playlist').addEventListener('click', function () {
+    UI.showView('empty');
+  });
+
+  document.getElementById('form-playlist').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const selections = {};
+    document.querySelectorAll('#playlist-slots select, #playlist-slots .playlist-multi-dropdown').forEach(function (control) {
+      if (control.classList.contains('playlist-multi-dropdown')) {
+        selections[control.dataset.slot] = Array.prototype.slice.call(control.querySelectorAll('input:checked'))
+          .map(function (input) { return input.value; });
+      } else {
+        selections[control.dataset.slot] = control.value ? [control.value] : [];
+      }
+    });
+    Playlists.create(document.getElementById('playlist-name').value.trim(), selections)
+      .then(function (playlist) {
+        UI.showView('empty');
+        loadPlaylists(true);
+        alert('Playlist creada. Link: ' + Playlists.getShareUrl(playlist.share_token));
+      })
+      .catch(function (error) {
+        console.error('Error creando playlist', error);
+        alert('No se pudo crear la playlist: ' + (error.message || error));
+      });
+  });
+
   // Cancelar
   document.getElementById('btn-cancel').addEventListener('click', function () {
     if (UI.getCurrentSongId()) {
@@ -80,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const data = {
       title: els.formTitleInput.value.trim(),
       artist: els.formArtist.value.trim(),
-      category: els.formCategory.value.trim(),
+      category: els.formCategory.value,
       youtube: els.formYoutube.value.trim(),
       body: els.formBody.value
     };
