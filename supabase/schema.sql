@@ -13,6 +13,7 @@ create table public.profiles (
 
 create table public.songs (
   id uuid primary key default gen_random_uuid(),
+  source_file text unique,
   title text not null,
   artist text not null default '',
   category text not null default '',

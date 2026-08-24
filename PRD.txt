@@ -122,6 +122,3 @@ Diseñar e implementar la experiencia de playlists compartidas.
 6. Estado Actual y Siguiente Paso
 
 El producto base cumple el alcance inicial y la prueba de campo en hardware real está aprobada. Se definió la evolución hacia un backend cloud colaborativo con Supabase. El siguiente paso técnico es crear y revisar la primera migración SQL, configurar el proyecto Supabase y establecer los dos administradores iniciales. Después se integrará autenticación y se migrará progresivamente la capa de datos de la SPA.
-
-
-27nuKk5z5ZOFne1N
