@@ -99,8 +99,41 @@ const Storage = (function () {
   }
 
   // ========== Carga de canciones por defecto ==========
-  // ========== Sincronización inteligente de canciones por defecto ==========
   function loadDefaultSongs() {
+    return loadCloudSongs().catch(function (err) {
+      console.warn('No se pudo cargar el catálogo cloud; usando archivos locales:', err.message);
+      return loadLocalDefaultSongs();
+    });
+  }
+
+  function loadCloudSongs() {
+    const defaultNotes = getDefaultNotes();
+    return SupabaseClient
+      .from('songs')
+      .select('id, source_file, title, artist, category, body, youtube, is_official, deleted_at')
+      .is('deleted_at', null)
+      .order('title', { ascending: true })
+      .then(function (result) {
+        if (result.error) throw result.error;
+
+        defaultSongs = (result.data || []).map(function (song) {
+          return {
+            id: song.id,
+            source: song.source_file || '',
+            isDefault: !!song.is_official,
+            title: song.title,
+            artist: song.artist || '',
+            category: song.category || '',
+            youtube: song.youtube || '',
+            body: song.body || '',
+            notes: defaultNotes[song.source_file] || ''
+          };
+        });
+        return defaultSongs.length;
+      });
+  }
+
+  function loadLocalDefaultSongs() {
     return fetch('data/manifest.json')
       .then(function (response) {
         if (!response.ok) throw new Error('No se encontró data/manifest.json');
