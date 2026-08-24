@@ -24,6 +24,28 @@ const Playlists = (function () {
       });
   }
 
+  function buildSongRows(playlistId, selections) {
+    const rows = [];
+    let position = 0;
+    SLOTS.forEach(function (slot) {
+      (selections[slot.key] || []).forEach(function (songId) {
+        if (songId) {
+          rows.push({ playlist_id: playlistId, song_id: songId, slot: slot.key, position: position++ });
+        }
+      });
+    });
+    return rows;
+  }
+
+  function insertSongs(playlist, selections) {
+    const rows = buildSongRows(playlist.id, selections);
+    if (rows.length === 0) return playlist;
+    return SupabaseClient.from('playlist_songs').insert(rows).then(function (songsResult) {
+      if (songsResult.error) throw songsResult.error;
+      return playlist;
+    });
+  }
+
   function create(name, selections) {
     const user = Auth.getUser();
     if (!user || !Auth.canEdit()) {
@@ -32,23 +54,39 @@ const Playlists = (function () {
 
     return SupabaseClient
       .from('playlists')
-      .insert({ name: name, description: '', created_by: user.id })
+      .insert({ name: name, description: '', created_by: user.id, updated_by: user.id })
       .select('id, name, description, share_token')
       .single()
       .then(function (playlistResult) {
         if (playlistResult.error) throw playlistResult.error;
-        const rows = [];
-        let position = 0;
-        SLOTS.forEach(function (slot) {
-          (selections[slot.key] || []).forEach(function (songId) {
-            rows.push({ playlist_id: playlistResult.data.id, song_id: songId, slot: slot.key, position: position++ });
+        return insertSongs(playlistResult.data, selections);
+      });
+  }
+
+  function update(id, name, selections) {
+    const user = Auth.getUser();
+    if (!user || !Auth.canEdit()) {
+      return Promise.reject(new Error('Solo un editor o administrador puede editar playlists.'));
+    }
+
+    return SupabaseClient
+      .from('playlists')
+      .update({
+        name: name,
+        updated_by: user.id,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .is('deleted_at', null)
+      .select('id, name, description, share_token')
+      .single()
+      .then(function (playlistResult) {
+        if (playlistResult.error) throw playlistResult.error;
+        return SupabaseClient.from('playlist_songs').delete().eq('playlist_id', id)
+          .then(function (deleteResult) {
+            if (deleteResult.error) throw deleteResult.error;
+            return insertSongs(playlistResult.data, selections);
           });
-        });
-        if (rows.length === 0) return playlistResult.data;
-        return SupabaseClient.from('playlist_songs').insert(rows).then(function (songsResult) {
-          if (songsResult.error) throw songsResult.error;
-          return playlistResult.data;
-        });
       });
   }
 
@@ -85,5 +123,12 @@ const Playlists = (function () {
     return window.location.origin + window.location.pathname + '#playlist=' + encodeURIComponent(token);
   }
 
-  return { loadAll: loadAll, loadShared: loadShared, create: create, getSlots: getSlots, getShareUrl: getShareUrl };
+  return {
+    loadAll: loadAll,
+    loadShared: loadShared,
+    create: create,
+    update: update,
+    getSlots: getSlots,
+    getShareUrl: getShareUrl
+  };
 })();

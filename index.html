@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f0f0f">
     <title>Cancionero Pro</title>
-    <link rel="stylesheet" href="css/styles.css?v=20260824-3">
+    <link rel="stylesheet" href="css/styles.css?v=20260824-4">
 </head>
 
 <body>
@@ -24,7 +24,7 @@
                         <summary title="Acciones editoriales">+</summary>
                         <div id="actions-menu-content" class="actions-menu-content">
                             <button id="btn-new" class="btn btn-primary" title="Nueva canción">Nueva canción</button>
-                            <button id="btn-new-playlist" class="btn btn-playlist" title="Nueva playlist">Nueva playlist</button>
+                            <button id="btn-new-playlist" class="btn btn-primary" title="Nueva playlist">Nueva playlist</button>
                             <button id="btn-export-json" class="btn" title="Exportar JSON">Exportar JSON</button>
                             <button id="btn-import-json" class="btn" title="Importar JSON">Importar JSON</button>
                             <button id="btn-export-txt" class="btn" title="Exportar .txt">Exportar TXT</button>
@@ -139,14 +139,14 @@
             </div>
 
             <div id="playlist-form" class="hidden playlist-form">
-                <h2>Nueva playlist</h2>
+                <h2 id="playlist-form-title">Nueva playlist</h2>
                 <form id="form-playlist">
                     <label>Nombre de la playlist
                         <input type="text" id="playlist-name" required>
                     </label>
                     <div id="playlist-slots" class="playlist-slots"></div>
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-playlist">Crear playlist</button>
+                        <button type="submit" id="btn-save-playlist" class="btn btn-primary">Crear playlist</button>
                         <button type="button" id="btn-cancel-playlist" class="btn">Cancelar</button>
                     </div>
                 </form>
@@ -159,6 +159,7 @@
                         <h2 id="playlist-view-title"></h2>
                         <p id="playlist-view-description"></p>
                     </div>
+                    <button id="btn-edit-playlist" class="btn btn-icon hidden" type="button" title="Editar playlist">✏️</button>
                 </div>
                 <ol id="playlist-song-list" class="playlist-song-list"></ol>
             </section>
@@ -192,11 +193,11 @@
     <script src="js/supabase-config.js?v=20260823"></script>
     <script src="js/auth.js?v=20260823"></script>
     <script src="js/migrate-songs.js?v=20260823"></script>
-    <script src="js/playlists.js?v=20260824-2"></script>
+    <script src="js/playlists.js?v=20260824-3"></script>
     <script src="js/storage.js?v=20260823"></script>
     <script src="js/chordpro.js?v=20260823"></script>
     <script src="js/ui.js?v=20260824-3"></script>
-    <script src="js/app.js?v=20260824-7"></script>
+    <script src="js/app.js?v=20260824-8"></script>
 </body>
 
 </html>

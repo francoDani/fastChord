@@ -5,6 +5,7 @@
   --text: #e8e8e8;
   --text-muted: #9a9a9a;
   --accent: #5b9bd5;
+  --accent2: #c45a9f;
   --border: #2a2a2a;
   --danger: #e05c5c;
   --radius: 8px;
@@ -225,6 +226,11 @@ html, body {
   align-items: flex-start;
   gap: 14px;
   margin-bottom: 22px;
+}
+
+.playlist-view-header > div {
+  flex: 1;
+  min-width: 0;
 }
 
 .playlist-view-header h2 {
@@ -475,7 +481,7 @@ html, body {
   padding: 10px 12px;
 }
 
-#search-input, #category-filter {
+#search-input, #category-filter, #playlist-name {
   width: 100%;
   padding: 10px 12px;
   background: var(--bg-card);
@@ -751,7 +757,11 @@ html, body {
 }
 
 .btn:hover, .btn:active {
-  background: #2a2a2a;
+  background: #76b5f0;
+  border-color: var(--border);
+  color: #0f0f0f;
+  font-weight: 600;
+  transition: background 0.15s;
 }
 
 .btn:disabled {
@@ -975,4 +985,12 @@ html, body {
   .shared-song-reader {
     padding: 10px 4px 14px;
   }
+}
+#btn-new-playlist {
+  background: var(--accent2);
+  border-color: var(--accent2);
+  color: #160d14;
+}
+#btn-new-playlist:hover, #btn-new-playlist:active {
+  background: #d978b7;
 }

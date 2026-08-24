@@ -7,11 +7,11 @@ Independencia Tecnológica: Cero dependencias de servidores de aplicación, base
 
 Rendimiento Extremo: Diseñado para correr fluido en navegadores antiguos sin consumir memoria excesiva ni sobrecargar la CPU.
 
-Portabilidad de Datos: Almacenamiento local persistente (localStorage) para las canciones creadas o importadas por el usuario y para las notas personales. Las canciones incluidas con la aplicación se cargan desde sus archivos originales y no se duplican en el almacenamiento local. Se mantiene el soporte de respaldo físico mediante importación y exportación de archivos JSON hacia una tarjeta SD.
+Portabilidad de Datos: Supabase es la fuente persistente del catálogo oficial, las playlists, las relaciones, los perfiles, los roles y las notas personales. Se mantiene el soporte de respaldo físico mediante importación y exportación de archivos JSON para usuarios autorizados. localStorage queda limitado a preferencias del dispositivo y compatibilidad de transición.
 
 Despliegue Web Estático: La aplicación se aloja en GitHub Pages. El acceso desde la tablet se realiza mediante la URL pública del repositorio, sin necesidad de instalar una aplicación nativa ni mantener un servidor propio. La SPA se conecta a Supabase como backend cloud gestionado.
 
-Colaboración Controlada: El catálogo y las playlists son compartidos entre los usuarios. Los visitantes no autenticados pueden consultar canciones y playlists públicas. Las operaciones de creación y edición requieren autenticación y rol editor o admin.
+Colaboración Controlada: El catálogo de canciones es público. Las playlists requieren autenticación para ser consultadas desde la aplicación; los usuarios Editor y Admin pueden crearlas y administrarlas. Un cancionero compartido mediante su link único puede ser consultado sin iniciar sesión y no permite acceder al resto de la aplicación.
 
 Experiencia de Usuario (UX) Limpia: Interfaz de lectura sin distracciones, con tema oscuro por defecto, fuentes de alta legibilidad y controles táctiles sobrios.
 
@@ -23,7 +23,7 @@ RF-02 (Buscador en Tiempo Real): Filtrado dinámico de canciones mediante una ba
 
 RF-03 (Categorización y Filtros): Las canciones deben pertenecer a una categoría configurable y poder filtrarse mediante un selector desplegable.
 
-RF-04 (CRUD de Canciones): Capacidad para crear nuevas canciones desde la interfaz, editar sus metadatos y cuerpo en formato ChordPro, e importarlas o eliminarlas. Las canciones incluidas por defecto son de solo lectura: no pueden editarse ni eliminarse y siempre se vuelven a cargar desde los archivos originales del manifest.
+RF-04 (CRUD de Canciones): Capacidad para crear nuevas canciones desde la interfaz, editar sus metadatos y cuerpo en formato ChordPro, e importarlas o eliminarlas. Las canciones oficiales, incluidas inicialmente desde el manifest, se almacenan en Supabase y pueden ser editadas por usuarios Editor y Admin. Los usuarios no autenticados y Read Only solo pueden consultarlas.
 
 3.2. Visualizador de Canciones (Core Reader)
 RF-05 (Renderizado ChordPro): Interpretación mediante expresiones regulares de etiquetas de acordes ([Acorde]) para posicionarlos de forma limpia sobre la letra. El renderizador admite acordes en la misma línea que la letra y también agrupa una línea de acordes con la línea de letra inmediatamente posterior. Las líneas que solo contienen acordes no generan elementos de letra vacíos.
@@ -39,20 +39,20 @@ RF-09 (Enlace Externo a YouTube): Campo de texto para registrar un enlace de ref
 
 RF-10 (Anotaciones Persistentes): Sección de notas personales por canción. Las notas se guardan de forma persistente en Supabase mediante la combinación usuario/canción y no se comparten con el equipo. Los visitantes no autenticados pueden leer canciones, pero deben iniciar sesión para crear o modificar notas.
 
-RF-11 (Biblioteca Protegida): Las canciones inicialmente listadas en data/manifest.json y data/songs/ se migran al catálogo oficial de Supabase. El manifest y los archivos locales quedan como respaldo de migración; la aplicación consulta el catálogo cloud. Todas las canciones oficiales muestran deshabilitadas las acciones de edición y eliminación para usuarios Read Only, mientras que los usuarios Editor y Admin pueden administrarlas según sus permisos.
+RF-11 (Biblioteca Protegida): Las canciones inicialmente listadas en data/manifest.json y data/songs/ se migran al catálogo oficial de Supabase. El manifest y los archivos locales quedan como respaldo de migración; la aplicación consulta el catálogo cloud. Las acciones de edición y eliminación se muestran únicamente a usuarios Editor y Admin, y la autorización real se aplica mediante RLS.
 
 RF-12 (Autenticación y Roles): La aplicación debe permitir iniciar sesión, inicialmente mediante Google OAuth. Cada usuario tendrá uno de los roles Read Only, Editor o Admin. Read Only puede consultar contenido; Editor puede crear, corregir y realizar soft delete de canciones y playlists; Admin puede además gestionar roles y realizar hard delete. Deben existir dos administradores iniciales.
 
 RF-13 (Catálogo Cloud): Las canciones oficiales se almacenan en la base de datos cloud y están disponibles para todos los usuarios. Las canciones creadas o importadas por un editor se incorporan como contenido oficial compartido.
 
-RF-14 (Playlists Compartidas): Los usuarios Editor y Admin pueden crear y editar playlists públicas, agregar o quitar canciones y reordenarlas. Todos los usuarios pueden consultar las playlists públicas. Cada playlist debe mostrar siempre la versión actual de sus canciones.
+RF-14 (Playlists Compartidas): Los usuarios Editor y Admin pueden crear y editar playlists compartidas, agregar canciones según momentos litúrgicos y consultar sus links únicos. Los usuarios autenticados Read Only pueden consultar las playlists desde la aplicación. Cualquier visitante con un link válido puede consultar exclusivamente ese cancionero sin autenticarse. Cada playlist debe mostrar siempre la versión actual de sus canciones.
 
 RF-15 (Borrado Controlado): El soft delete oculta canciones y playlists del uso normal sin borrar sus relaciones ni historial básico. Solo Admin puede realizar hard delete de canciones o playlists. Para proteger la integridad de los datos, una canción asociada a una playlist deberá retirarse de esas relaciones antes de un hard delete.
 
 4. Requerimientos No Funcionales (RNF)
 RNF-01 (Compatibilidad Web): El código debe estructurarse utilizando estándares de JavaScript (ES6+) compatibles con navegadores móviles de versiones anteriores.
 
-RNF-02 (Persistencia y Datos): Uso de Supabase para canciones, playlists, relaciones, usuarios, roles y notas personales. Las notas pertenecen a la combinación usuario/canción y no se comparten con el equipo. La importación y exportación JSON se conserva como mecanismo de respaldo para usuarios autorizados. localStorage conserva únicamente datos locales de transición y preferencias del dispositivo.
+RNF-02 (Persistencia y Datos): Uso de Supabase para canciones, playlists, relaciones, usuarios, roles y notas personales. Las notas pertenecen a la combinación usuario/canción y no se comparten con el equipo. La importación y exportación JSON se conserva como mecanismo de respaldo para usuarios autorizados. localStorage conserva únicamente preferencias del dispositivo y datos de transición que todavía no hayan sido retirados.
 
 RNF-04 (Hosting Estático): La SPA debe poder publicarse y ejecutarse desde GitHub Pages, incluyendo sus archivos HTML, CSS y JavaScript. El backend cloud se aloja en Supabase y no requiere un servidor propio de la aplicación.
 
@@ -103,15 +103,15 @@ Validación exitosa de la administración de canciones creadas o importadas por 
 
 Validación exitosa de importación y exportación JSON de canciones del usuario y notas personales.
 
-Fase 5: Backend Cloud, Autenticación y Colaboración (Planificada)
+Fase 5: Backend Cloud, Autenticación y Colaboración (En gran parte completada)
 
-Definir el esquema cloud para perfiles, roles, canciones, notas personales, playlists y relaciones playlist-canción.
+Definir y desplegar el esquema cloud para perfiles, roles, canciones, notas personales, playlists y relaciones playlist-canción.
 
 Configurar Supabase Auth con Google OAuth y crear los dos administradores iniciales.
 
 Migrar el catálogo predeterminado desde data/manifest.json y data/songs/ a la base cloud.
 
-Implementar Row Level Security para lectura pública, edición de editores, administración de roles y hard delete de administradores.
+Implementar Row Level Security para lectura de canciones, acceso autenticado a playlists, edición de editores y administración de roles. El hard delete administrativo permanece pendiente.
 
 Adaptar la capa Storage de la SPA para consultar Supabase y conservar las notas privadas por usuario y canción.
 
@@ -121,10 +121,32 @@ El menú compacto de creación, importación y exportación ya está implementad
 
 La creación, edición y soft delete de canciones ya están conectados a Supabase. El hard delete administrativo queda explícitamente pospuesto.
 
-Se inició la implementación de playlists: panel autenticado, botón magenta para usuarios Editor/Admin y formulario con los momentos litúrgicos en orden fijo, filtros por categoría y múltiples canciones en Comunión.
+Implementar playlists: panel autenticado, botón magenta para usuarios Editor/Admin y formulario con los momentos litúrgicos en orden fijo, filtros por categoría y múltiples canciones en Comunión. Completado.
 
-Completar la experiencia de playlists compartidas: edición, soft delete, vista pública mediante link único con hash y navegación anterior/siguiente.
+Implementar la vista de detalle de playlists, con lista ordenada y acceso a cada canción. Completado.
+
+Implementar la vista de cancionero compartido mediante hash, sin autenticación y aislada del resto de la aplicación, con navegación Anterior/Siguiente. Completado.
+
+Completar la experiencia de playlists compartidas: edición para Editor y Admin ya implementada. Soft delete y validación integral del link único permanecen pendientes.
+
+Corregir y consolidar la compatibilidad responsive del lector compartido en escritorio y móvil.
+
+Implementar administración de playlists para usuarios Editor y Admin, sin hard delete por ahora.
 
 6. Estado Actual y Siguiente Paso
 
-El producto base cumple el alcance inicial y la prueba de campo en hardware real está aprobada. Se definió la evolución hacia un backend cloud colaborativo con Supabase. El siguiente paso técnico es crear y revisar la primera migración SQL, configurar el proyecto Supabase y establecer los dos administradores iniciales. Después se integrará autenticación y se migrará progresivamente la capa de datos de la SPA.
+El producto base cumple el alcance inicial y la prueba de campo en hardware real está aprobada. Supabase, Google OAuth, el catálogo cloud, las notas personales cloud, el CRUD de canciones, el menú editorial y la creación y lectura inicial de playlists ya están implementados.
+
+Siguientes pasos técnicos:
+
+1. Completar la edición de playlists para Editor y Admin. Completado: el formulario de creación se reutiliza para editar nombre y slots, y persiste el reemplazo de canciones en Supabase.
+
+2. Implementar soft delete de playlists y ocultarlas de usuarios Read Only, manteniendo el hard delete exclusivamente para una futura herramienta Admin.
+
+3. Validar el link compartido en ventanas autenticadas, anónimas y dispositivos móviles, incluyendo el comportamiento al cambiar el hash sin hard reload manual.
+
+4. Agregar una acción clara para copiar el link único de cada playlist.
+
+5. Revisar la migración definitiva de canciones para retirar completamente los fallbacks de localStorage y de archivos locales.
+
+6. Actualizar la documentación de despliegue y probar nuevamente en GitHub Pages y en los dispositivos objetivo.
