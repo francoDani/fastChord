@@ -1,6 +1,5 @@
 const Storage = (function () {
   const KEY = 'cancionero_pro_songs_v1';
-  const DEFAULT_NOTES_KEY = 'cancionero_pro_default_notes_v1';
   let defaultSongs = [];
 
   function getUserSongs() {
@@ -23,6 +22,25 @@ const Storage = (function () {
 
   function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+  }
+
+  function getNotes(id) {
+    const user = Auth.getUser();
+    if (!user) return Promise.resolve('');
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+      return Promise.resolve('');
+    }
+
+    return SupabaseClient
+      .from('song_notes')
+      .select('content')
+      .eq('song_id', id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(function (result) {
+        if (result.error) throw result.error;
+        return result.data ? result.data.content : '';
+      });
   }
 
   function add(song) {
@@ -52,35 +70,26 @@ const Storage = (function () {
     saveAll(songs);
   }
 
-  function getDefaultNotes() {
-    try {
-      const data = localStorage.getItem(DEFAULT_NOTES_KEY);
-      return data ? JSON.parse(data) : {};
-    } catch (e) {
-      console.error('Error leyendo notas de canciones predeterminadas', e);
-      return {};
-    }
-  }
-
-  function saveDefaultNotes(notes) {
-    localStorage.setItem(DEFAULT_NOTES_KEY, JSON.stringify(notes));
-  }
-
   function updateNotes(id, notes) {
-    const defaultSong = defaultSongs.find(function (song) { return song.id === id; });
-    if (defaultSong) {
-      const defaultNotes = getDefaultNotes();
-      defaultNotes[defaultSong.source] = notes;
-      saveDefaultNotes(defaultNotes);
-      defaultSong.notes = notes;
-      return defaultSong;
+    const user = Auth.getUser();
+    if (!user) return Promise.reject(new Error('Debes iniciar sesión para guardar notas.'));
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+      return Promise.reject(new Error('Esta canción todavía no está migrada a Supabase.'));
     }
-    return update(id, { notes: notes });
+
+    return SupabaseClient
+      .from('song_notes')
+      .upsert({ song_id: id, user_id: user.id, content: notes }, {
+        onConflict: 'song_id,user_id'
+      })
+      .then(function (result) {
+        if (result.error) throw result.error;
+        return notes;
+      });
   }
 
   function migrateLegacyDefaults(defaultSongsFromFiles) {
     const currentSongs = getUserSongs();
-    const defaultNotes = getDefaultNotes();
     const defaultKeys = {};
     defaultSongsFromFiles.forEach(function (song) {
       defaultKeys[(song.title || '').toLowerCase() + '|' + (song.artist || '').toLowerCase()] = song.source;
@@ -90,12 +99,10 @@ const Storage = (function () {
       const key = (song.title || '').toLowerCase() + '|' + (song.artist || '').toLowerCase();
       const source = defaultKeys[key];
       if (!source || song.isDefault === false) return true;
-      if (song.notes && !defaultNotes[source]) defaultNotes[source] = song.notes;
       return false;
     });
 
     saveAll(userSongs);
-    saveDefaultNotes(defaultNotes);
   }
 
   // ========== Carga de canciones por defecto ==========
@@ -107,7 +114,6 @@ const Storage = (function () {
   }
 
   function loadCloudSongs() {
-    const defaultNotes = getDefaultNotes();
     return SupabaseClient
       .from('songs')
       .select('id, source_file, title, artist, category, body, youtube, is_official, deleted_at')
@@ -126,7 +132,7 @@ const Storage = (function () {
             category: song.category || '',
             youtube: song.youtube || '',
             body: song.body || '',
-            notes: defaultNotes[song.source_file] || ''
+            notes: ''
           };
         });
         return defaultSongs.length;
@@ -172,7 +178,6 @@ const Storage = (function () {
         if (validSongs.length === 0) return 0;
 
         migrateLegacyDefaults(validSongs);
-        const defaultNotes = getDefaultNotes();
         defaultSongs = validSongs.map(function (song) {
           const source = song.source;
           return {
@@ -184,7 +189,7 @@ const Storage = (function () {
             category: song.category || '',
             youtube: song.youtube || '',
             body: song.body || '',
-            notes: defaultNotes[source] || ''
+            notes: ''
           };
         });
         return defaultSongs.length;

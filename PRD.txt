@@ -37,7 +37,7 @@ RF-08 (Auto-scroll): Sistema de desplazamiento automático vertical con control 
 
 RF-09 (Enlace Externo a YouTube): Campo de texto para registrar un enlace de referencia que se abre directamente en el navegador externo o app oficial mediante un botón dedicado.
 
-RF-10 (Anotaciones Persistentes): Sección de notas personales por canción. Una vez integrada la base cloud, las notas se guardan de forma persistente en Supabase mediante la combinación usuario/canción y no se comparten con el equipo. Durante la transición se admite la persistencia local existente.
+RF-10 (Anotaciones Persistentes): Sección de notas personales por canción. Las notas se guardan de forma persistente en Supabase mediante la combinación usuario/canción y no se comparten con el equipo. Los visitantes no autenticados pueden leer canciones, pero deben iniciar sesión para crear o modificar notas.
 
 RF-11 (Biblioteca Protegida): Las canciones inicialmente listadas en data/manifest.json y data/songs/ se migran al catálogo oficial de Supabase. El manifest y los archivos locales quedan como respaldo de migración; la aplicación consulta el catálogo cloud. Todas las canciones oficiales muestran deshabilitadas las acciones de edición y eliminación para usuarios Read Only, mientras que los usuarios Editor y Admin pueden administrarlas según sus permisos.
 
@@ -52,7 +52,7 @@ RF-15 (Borrado Controlado): El soft delete oculta canciones y playlists del uso 
 4. Requerimientos No Funcionales (RNF)
 RNF-01 (Compatibilidad Web): El código debe estructurarse utilizando estándares de JavaScript (ES6+) compatibles con navegadores móviles de versiones anteriores.
 
-RNF-02 (Persistencia y Datos): Uso de Supabase para canciones, playlists, relaciones, usuarios y roles. Las notas personales pertenecen a la combinación usuario/canción y no se comparten con el equipo. La importación y exportación JSON se conserva como mecanismo de respaldo para usuarios autorizados. Durante la migración, localStorage solo conserva datos locales compatibles y preferencias del dispositivo.
+RNF-02 (Persistencia y Datos): Uso de Supabase para canciones, playlists, relaciones, usuarios, roles y notas personales. Las notas pertenecen a la combinación usuario/canción y no se comparten con el equipo. La importación y exportación JSON se conserva como mecanismo de respaldo para usuarios autorizados. localStorage conserva únicamente datos locales de transición y preferencias del dispositivo.
 
 RNF-04 (Hosting Estático): La SPA debe poder publicarse y ejecutarse desde GitHub Pages, incluyendo sus archivos HTML, CSS y JavaScript. El backend cloud se aloja en Supabase y no requiere un servidor propio de la aplicación.
 

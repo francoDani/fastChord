@@ -146,7 +146,13 @@ const UI = (function () {
     } else {
       els.songCategory.style.display = 'none';
     }
-    els.songNotes.value = song.notes || '';
+    els.songNotes.value = '';
+    els.songNotes.disabled = !Auth.getUser();
+    Storage.getNotes(song.id).then(function (notes) {
+      if (currentSongId === id) els.songNotes.value = notes;
+    }).catch(function (error) {
+      console.error('Error cargando notas personales', error);
+    });
     els.transposeValue.textContent = '0';
     updateSongActions(song);
 
@@ -211,6 +217,7 @@ const UI = (function () {
 
   function setRole(role) {
     currentRole = role || 'readonly';
+    els.songNotes.disabled = !Auth.getUser();
     if (currentSongId) {
       const song = Storage.getAll().find(function (item) { return item.id === currentSongId; });
       updateSongActions(song);
