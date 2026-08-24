@@ -14,22 +14,26 @@
         <!-- Sidebar -->
         <aside id="sidebar">
             <header class="sidebar-header">
-                <h1>Fast Chord</h1>
-                <div class="auth-controls">
-                    <span id="auth-user" class="auth-user"></span>
+                <div class="sidebar-brand-row">
+                    <h1>Fast Chord</h1>
                     <button id="btn-auth" class="btn btn-icon" title="Iniciar sesión">♙</button>
                 </div>
-
+                <div class="sidebar-header-controls">
+                    <span id="auth-user" class="auth-user"></span>
+                    <details id="editor-actions" class="actions-menu">
+                        <summary title="Acciones editoriales">+</summary>
+                        <div id="actions-menu-content" class="actions-menu-content">
+                            <button id="btn-new" class="btn btn-primary" title="Nueva canción">Nueva canción</button>
+                            <button id="btn-export-json" class="btn" title="Exportar JSON">Exportar JSON</button>
+                            <button id="btn-import-json" class="btn" title="Importar JSON">Importar JSON</button>
+                            <button id="btn-export-txt" class="btn" title="Exportar .txt">Exportar TXT</button>
+                            <button id="btn-import-txt" class="btn" title="Importar .txt / OnSong">Importar TXT</button>
+                            <input type="file" id="import-json-file" accept=".json" hidden>
+                            <input type="file" id="import-txt-files" accept=".txt,.cho,.crd,.chordpro,.onsong" multiple hidden>
+                        </div>
+                    </details>
+                </div>
             </header>
-            <div class="toolbar">
-                <button id="btn-new" class="btn btn-primary" title="Nueva canción">+</button>
-                <button id="btn-export-json" class="btn" title="Exportar JSON">JSON ↓</button>
-                <button id="btn-import-json" class="btn" title="Importar JSON">JSON ↑</button>
-                <button id="btn-export-txt" class="btn" title="Exportar .txt">TXT ↓</button>
-                <button id="btn-import-txt" class="btn" title="Importar .txt / OnSong">TXT ↑</button>
-                <input type="file" id="import-json-file" accept=".json" hidden>
-                <input type="file" id="import-txt-files" accept=".txt,.cho,.crd,.chordpro,.onsong" multiple hidden>
-            </div>
             <div class="search-box">
                 <input type="search" id="search-input" placeholder="Buscar título o artista..." autocomplete="off">
             </div>

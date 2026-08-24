@@ -117,6 +117,10 @@ Adaptar la capa Storage de la SPA para consultar Supabase y conservar las notas 
 
 Implementar el menú compacto de acciones, la sesión de usuario y las funciones editoriales.
 
+El menú compacto de creación, importación y exportación ya está implementado y solo se muestra a usuarios Editor y Admin.
+
+La creación, edición y soft delete de canciones ya están conectados a Supabase. El hard delete administrativo queda explícitamente pospuesto.
+
 Diseñar e implementar la experiencia de playlists compartidas.
 
 6. Estado Actual y Siguiente Paso

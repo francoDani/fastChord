@@ -21,9 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     };
     UI.setRole(state.role);
-    document.getElementById('btn-new').hidden = !canEdit;
-    document.getElementById('btn-import-json').hidden = !canEdit;
-    document.getElementById('btn-import-txt').hidden = !canEdit;
+    document.getElementById('editor-actions').hidden = !canEdit;
   }
 
   Auth.init(applyAuthState)
@@ -41,6 +39,16 @@ document.addEventListener('DOMContentLoaded', function () {
       UI.refreshList();
     });
 
+  document.getElementById('actions-menu-content').addEventListener('click', function (event) {
+    let element = event.target;
+    while (element && element !== this && element.tagName !== 'BUTTON') {
+      element = element.parentNode;
+    }
+    if (element && element.tagName === 'BUTTON') {
+      document.getElementById('editor-actions').open = false;
+    }
+  });
+
   // Búsqueda
   els.searchInput.addEventListener('input', function () {
     UI.refreshList(this.value, els.categoryFilter.value);
@@ -54,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Nueva canción
   document.getElementById('btn-new').addEventListener('click', function () {
     UI.openForm();
+    sidebar.classList.add('collapsed');
   });
 
   // Cancelar
