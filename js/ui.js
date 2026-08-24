@@ -182,7 +182,7 @@ const UI = (function () {
   }
 
   function openForm(song) {
-    if (song && currentRole !== 'editor' && currentRole !== 'admin') return;
+    if (song && (!isCloudSong(song) || (currentRole !== 'editor' && currentRole !== 'admin'))) return;
     showView('form');
     if (song) {
       els.formTitle.textContent = 'Editar canción';
@@ -209,10 +209,14 @@ const UI = (function () {
   });
 
   function updateSongActions(song) {
-    const canEditSong = song && !song.isDefault &&
+    const canEditSong = song && isCloudSong(song) &&
       (currentRole === 'editor' || currentRole === 'admin');
     els.btnEdit.disabled = !canEditSong;
     els.btnDelete.disabled = !canEditSong;
+  }
+
+  function isCloudSong(song) {
+    return !!song && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(song.id);
   }
 
   function setRole(role) {

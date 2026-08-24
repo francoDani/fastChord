@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const id = UI.getCurrentSongId();
     if (!id) return;
     const song = Storage.getAll().find(function (s) { return s.id === id; });
-    if (!song || song.isDefault || !Auth.canEdit()) return;
+    if (!song || !Auth.canEdit() || !isCloudSongId(song.id)) return;
     UI.openForm(song);
   });
 
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const id = UI.getCurrentSongId();
     if (!id) return;
     const song = Storage.getAll().find(function (s) { return s.id === id; });
-    if (!song || song.isDefault || !Auth.canEdit()) return;
+    if (!song || !Auth.canEdit() || !isCloudSongId(song.id)) return;
     if (confirm('¿Eliminar esta canción?')) {
       Storage.remove(id)
         .then(function () {
@@ -124,6 +124,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
   });
+
+    function isCloudSongId(id) {
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+    }
 
   // Transposición
   document.getElementById('btn-transpose-up').addEventListener('click', function () {
