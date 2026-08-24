@@ -55,14 +55,41 @@ const Storage = (function () {
   }
 
   function add(song) {
-    const songs = getUserSongs();
-    song.id = generateId();
-    song.isDefault = false;
-    song.createdAt = new Date().toISOString();
-    song.updatedAt = song.createdAt;
-    songs.push(song);
-    saveAll(songs);
-    return song;
+    const user = Auth.getUser();
+    if (!user || !Auth.canEdit()) {
+      return Promise.reject(new Error('Solo un editor o administrador puede crear canciones.'));
+    }
+
+    return SupabaseClient
+      .from('songs')
+      .insert({
+        title: song.title || 'Sin título',
+        artist: song.artist || '',
+        category: song.category || '',
+        body: song.body || '',
+        youtube: song.youtube || '',
+        is_official: true,
+        created_by: user.id,
+        updated_by: user.id
+      })
+      .select('id, source_file, title, artist, category, body, youtube, is_official, deleted_at')
+      .single()
+      .then(function (result) {
+        if (result.error) throw result.error;
+        const createdSong = {
+          id: result.data.id,
+          source: result.data.source_file || '',
+          isDefault: false,
+          title: result.data.title,
+          artist: result.data.artist || '',
+          category: result.data.category || '',
+          youtube: result.data.youtube || '',
+          body: result.data.body || '',
+          notes: ''
+        };
+        defaultSongs.push(createdSong);
+        return createdSong;
+      });
   }
 
   function update(id, data) {
@@ -137,7 +164,7 @@ const Storage = (function () {
           return {
             id: song.id,
             source: song.source_file || '',
-            isDefault: !!song.is_official,
+            isDefault: false,
             title: song.title,
             artist: song.artist || '',
             category: song.category || '',

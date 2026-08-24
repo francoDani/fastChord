@@ -81,15 +81,19 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    if (UI.getCurrentSongId()) {
-      Storage.update(UI.getCurrentSongId(), data);
-    } else {
-      const newSong = Storage.add(data);
-      UI.selectSong(newSong.id);
-    }
+    const saveRequest = UI.getCurrentSongId()
+      ? Storage.update(UI.getCurrentSongId(), data)
+      : Storage.add(data);
 
-    UI.refreshList(els.searchInput.value, els.categoryFilter.value);
-    if (UI.getCurrentSongId()) UI.selectSong(UI.getCurrentSongId());
+    Promise.resolve(saveRequest)
+      .then(function (savedSong) {
+        UI.refreshList(els.searchInput.value, els.categoryFilter.value);
+        UI.selectSong(savedSong.id);
+      })
+      .catch(function (error) {
+        console.error('Error guardando canción', error);
+        alert('No se pudo guardar la canción.');
+      });
   });
 
   // Editar
