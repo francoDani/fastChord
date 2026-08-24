@@ -20,6 +20,17 @@ const Storage = (function () {
     localStorage.setItem(KEY, JSON.stringify(songs));
   }
 
+  function clearLocalData() {
+    const keysToRemove = [];
+    for (let index = 0; index < localStorage.length; index++) {
+      const key = localStorage.key(index);
+      if (key && (key.indexOf('cancionero_pro_') === 0 || key.indexOf('sb-') === 0)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(function (key) { localStorage.removeItem(key); });
+  }
+
   function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
   }
@@ -473,6 +484,7 @@ const Storage = (function () {
 
   return {
     getAll: getAll,
+    clearLocalData: clearLocalData,
     add: add,
     update: update,
     remove: remove,

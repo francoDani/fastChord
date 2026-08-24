@@ -1,13 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-  // Sincronizar automáticamente canciones nuevas del manifest al iniciar
-  Storage.loadDefaultSongs().then(function (count) {
-    if (count > 0) {
-      console.log('Se añadieron ' + count + ' canciones nuevas');
-    }
-    UI.refreshList();
-  });
-
   const els = UI.getElements();
 
   const authButton = document.getElementById('btn-auth');
@@ -16,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function applyAuthState(state) {
     const signedIn = !!state.user;
     const canEdit = state.role === 'editor' || state.role === 'admin';
+    if (!signedIn) Storage.clearLocalData();
     authUser.textContent = signedIn
       ? ((state.profile && state.profile.display_name) || state.user.email)
       : '';
@@ -33,10 +26,20 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btn-import-txt').hidden = !canEdit;
   }
 
-  Auth.init(applyAuthState).catch(function (error) {
-    console.error('No se pudo inicializar la autenticación', error);
-    applyAuthState({ user: null, profile: null, role: 'readonly' });
-  });
+  Auth.init(applyAuthState)
+    .catch(function (error) {
+      console.error('No se pudo inicializar la autenticación', error);
+      applyAuthState({ user: null, profile: null, role: 'readonly' });
+    })
+    .then(function () {
+      return Storage.loadDefaultSongs();
+    })
+    .then(function (count) {
+      if (count > 0) {
+        console.log('Se cargaron ' + count + ' canciones');
+      }
+      UI.refreshList();
+    });
 
   // Búsqueda
   els.searchInput.addEventListener('input', function () {
