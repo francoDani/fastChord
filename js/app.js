@@ -14,8 +14,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const authButton = document.getElementById('btn-auth');
   const authUser = document.getElementById('auth-user');
   const btnEditPlaylist = document.getElementById('btn-edit-playlist');
+  const btnDeletePlaylist = document.getElementById('btn-delete-playlist');
   let currentPlaylist = null;
   let editingPlaylist = null;
+
+  function setPlaylistEditorActions(visible) {
+    btnEditPlaylist.classList.toggle('hidden', !visible);
+    btnDeletePlaylist.classList.toggle('hidden', !visible);
+  }
 
   function applyAuthState(state) {
     const signedIn = !!state.user;
@@ -35,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
     UI.setRole(state.role);
     document.getElementById('editor-actions').hidden = !canEdit;
     document.getElementById('playlists-panel').classList.toggle('hidden', !signedIn);
-    btnEditPlaylist.classList.toggle('hidden', !canEdit);
+    setPlaylistEditorActions(canEdit && !!currentPlaylist);
     if (!canEdit && editingPlaylist) {
       editingPlaylist = null;
       if (currentPlaylist) openPlaylist(currentPlaylist);
@@ -75,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }).map(function (item) { return item.songs; }).filter(Boolean);
     document.getElementById('playlist-view-title').textContent = playlist.name;
     document.getElementById('playlist-view-description').textContent = playlist.description || '';
-    btnEditPlaylist.classList.toggle('hidden', !Auth.canEdit());
+    setPlaylistEditorActions(Auth.canEdit());
     const list = document.getElementById('playlist-song-list');
     list.innerHTML = '';
     songs.forEach(function (song) {
@@ -240,6 +246,25 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('btn-edit-playlist').addEventListener('click', function () {
     if (!currentPlaylist || !Auth.canEdit()) return;
     openPlaylistForm(currentPlaylist);
+  });
+
+  document.getElementById('btn-delete-playlist').addEventListener('click', function () {
+    if (!currentPlaylist || !Auth.canEdit()) return;
+    if (!confirm('¿Eliminar esta playlist? Dejará de aparecer para el equipo y el link compartido dejará de funcionar.')) {
+      return;
+    }
+    Playlists.remove(currentPlaylist.id)
+      .then(function () {
+        currentPlaylist = null;
+        editingPlaylist = null;
+        setPlaylistEditorActions(false);
+        UI.showView('empty');
+        return loadPlaylists(true);
+      })
+      .catch(function (error) {
+        console.error('Error eliminando playlist', error);
+        alert('No se pudo eliminar la playlist: ' + (error.message || error));
+      });
   });
 
   document.getElementById('btn-back-playlists').addEventListener('click', function () {

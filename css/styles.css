@@ -228,9 +228,15 @@ html, body {
   margin-bottom: 22px;
 }
 
-.playlist-view-header > div {
+.playlist-view-meta {
   flex: 1;
   min-width: 0;
+}
+
+.playlist-view-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .playlist-view-header h2 {

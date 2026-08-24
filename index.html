@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f0f0f">
     <title>Cancionero Pro</title>
-    <link rel="stylesheet" href="css/styles.css?v=20260824-4">
+    <link rel="stylesheet" href="css/styles.css?v=20260824-5">
 </head>
 
 <body>
@@ -155,11 +155,14 @@
             <section id="playlist-view" class="hidden playlist-view">
                 <div class="playlist-view-header">
                     <button id="btn-back-playlists" class="btn" title="Volver a playlists">Volver</button>
-                    <div>
+                    <div class="playlist-view-meta">
                         <h2 id="playlist-view-title"></h2>
                         <p id="playlist-view-description"></p>
                     </div>
-                    <button id="btn-edit-playlist" class="btn btn-icon hidden" type="button" title="Editar playlist">✏️</button>
+                    <div class="playlist-view-actions">
+                        <button id="btn-edit-playlist" class="btn btn-icon hidden" type="button" title="Editar playlist">✏️</button>
+                        <button id="btn-delete-playlist" class="btn btn-danger btn-icon hidden" type="button" title="Eliminar playlist">🗑️</button>
+                    </div>
                 </div>
                 <ol id="playlist-song-list" class="playlist-song-list"></ol>
             </section>
@@ -193,11 +196,11 @@
     <script src="js/supabase-config.js?v=20260823"></script>
     <script src="js/auth.js?v=20260823"></script>
     <script src="js/migrate-songs.js?v=20260823"></script>
-    <script src="js/playlists.js?v=20260824-3"></script>
+    <script src="js/playlists.js?v=20260824-4"></script>
     <script src="js/storage.js?v=20260823"></script>
     <script src="js/chordpro.js?v=20260823"></script>
     <script src="js/ui.js?v=20260824-3"></script>
-    <script src="js/app.js?v=20260824-8"></script>
+    <script src="js/app.js?v=20260824-9"></script>
 </body>
 
 </html>

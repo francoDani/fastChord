@@ -119,6 +119,27 @@ const Playlists = (function () {
     return SLOTS.slice();
   }
 
+  function remove(id) {
+    const user = Auth.getUser();
+    if (!user || !Auth.canEdit()) {
+      return Promise.reject(new Error('Solo un editor o administrador puede eliminar playlists.'));
+    }
+
+    return SupabaseClient
+      .from('playlists')
+      .update({
+        deleted_at: new Date().toISOString(),
+        updated_by: user.id,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .is('deleted_at', null)
+      .then(function (result) {
+        if (result.error) throw result.error;
+        return true;
+      });
+  }
+
   function getShareUrl(token) {
     return window.location.origin + window.location.pathname + '#playlist=' + encodeURIComponent(token);
   }
@@ -128,6 +149,7 @@ const Playlists = (function () {
     loadShared: loadShared,
     create: create,
     update: update,
+    remove: remove,
     getSlots: getSlots,
     getShareUrl: getShareUrl
   };
