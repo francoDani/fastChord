@@ -459,6 +459,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function initSharedPlaylist(token) {
     document.getElementById('sidebar').classList.add('hidden');
     document.getElementById('btn-toggle-sidebar').classList.add('hidden');
+    document.getElementById('empty-state').classList.add('hidden');
+    document.getElementById('song-view').classList.add('hidden');
+    document.getElementById('song-form').classList.add('hidden');
+    document.getElementById('playlist-form').classList.add('hidden');
+    document.getElementById('playlist-view').classList.add('hidden');
     const view = document.getElementById('shared-playlist-view');
     view.classList.remove('hidden');
     const list = document.getElementById('shared-song-list');
