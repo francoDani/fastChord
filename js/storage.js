@@ -476,6 +476,7 @@ const Storage = (function () {
     add: add,
     update: update,
     remove: remove,
+    getNotes: getNotes,
     updateNotes: updateNotes,
     loadDefaultSongs: loadDefaultSongs,
     exportJSON: exportJSON,
