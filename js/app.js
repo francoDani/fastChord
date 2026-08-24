@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const authUser = document.getElementById('auth-user');
   const btnEditPlaylist = document.getElementById('btn-edit-playlist');
   const btnDeletePlaylist = document.getElementById('btn-delete-playlist');
+  const btnCopyPlaylistLink = document.getElementById('btn-copy-playlist-link');
   let currentPlaylist = null;
   let editingPlaylist = null;
 
@@ -198,6 +199,29 @@ document.addEventListener('DOMContentLoaded', function () {
     return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      const input = document.createElement('textarea');
+      input.value = text;
+      input.setAttribute('readonly', '');
+      input.style.position = 'absolute';
+      input.style.left = '-9999px';
+      document.body.appendChild(input);
+      input.select();
+      input.setSelectionRange(0, text.length);
+      try {
+        if (!document.execCommand('copy')) throw new Error('copy failed');
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+      document.body.removeChild(input);
+    });
+  }
+
   Auth.init(applyAuthState)
     .catch(function (error) {
       console.error('No se pudo inicializar la autenticación', error);
@@ -246,6 +270,25 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('btn-edit-playlist').addEventListener('click', function () {
     if (!currentPlaylist || !Auth.canEdit()) return;
     openPlaylistForm(currentPlaylist);
+  });
+
+  document.getElementById('btn-copy-playlist-link').addEventListener('click', function () {
+    if (!currentPlaylist || !currentPlaylist.share_token) {
+      alert('Esta playlist todavía no tiene un link para compartir.');
+      return;
+    }
+    const url = Playlists.getShareUrl(currentPlaylist.share_token);
+    copyToClipboard(url).then(function () {
+      const originalTitle = btnCopyPlaylistLink.title;
+      btnCopyPlaylistLink.title = 'Link copiado';
+      btnCopyPlaylistLink.classList.add('copied');
+      setTimeout(function () {
+        btnCopyPlaylistLink.title = originalTitle;
+        btnCopyPlaylistLink.classList.remove('copied');
+      }, 1600);
+    }).catch(function () {
+      window.prompt('Copiá el link de la playlist:', url);
+    });
   });
 
   document.getElementById('btn-delete-playlist').addEventListener('click', function () {

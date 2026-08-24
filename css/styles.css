@@ -239,6 +239,10 @@ html, body {
   flex-shrink: 0;
 }
 
+.playlist-view-actions .copied {
+  outline: 1px solid var(--accent, #8ab9e4);
+}
+
 .playlist-view-header h2 {
   margin-bottom: 4px;
 }

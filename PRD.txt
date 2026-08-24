@@ -127,7 +127,7 @@ Implementar la vista de detalle de playlists, con lista ordenada y acceso a cada
 
 Implementar la vista de cancionero compartido mediante hash, sin autenticación y aislada del resto de la aplicación, con navegación Anterior/Siguiente. Completado.
 
-Completar la experiencia de playlists compartidas: edición y soft delete para Editor y Admin ya implementados. El hard delete permanece pospuesto. La validación integral del link único permanece pendiente.
+Completar la experiencia de playlists compartidas: edición, soft delete y copia del link único ya implementados. El hard delete permanece pospuesto. La validación integral del link único permanece pendiente.
 
 Corregir y consolidar la compatibilidad responsive del lector compartido en escritorio y móvil.
 
@@ -145,7 +145,7 @@ Siguientes pasos técnicos:
 
 3. Validar el link compartido en ventanas autenticadas, anónimas y dispositivos móviles, incluyendo el comportamiento al cambiar el hash sin hard reload manual.
 
-4. Agregar una acción clara para copiar el link único de cada playlist.
+4. Agregar una acción clara para copiar el link único de cada playlist. Completado: cualquier usuario autenticado que abra una playlist desde FastChord puede copiar el link compartido; Editor y Admin conservan editar y eliminar.
 
 5. Revisar la migración definitiva de canciones para retirar completamente los fallbacks de localStorage y de archivos locales.
 
