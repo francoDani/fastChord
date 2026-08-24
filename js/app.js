@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(function (error) {
         console.error('Error guardando canción', error);
-        alert('No se pudo guardar la canción.');
+        alert('No se pudo guardar la canción: ' + (error.message || error));
       });
   });
 
