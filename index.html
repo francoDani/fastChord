@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f0f0f">
     <title>Cancionero Pro</title>
-    <link rel="stylesheet" href="css/styles.css?v=20260824-2">
+    <link rel="stylesheet" href="css/styles.css?v=20260824-3">
 </head>
 
 <body>
@@ -169,16 +169,21 @@
                     <h2 id="shared-playlist-title"></h2>
                     <p id="shared-playlist-description"></p>
                 </header>
-                <ol id="shared-song-list" class="shared-song-list"></ol>
-                <article id="shared-song-reader" class="shared-song-reader">
-                    <h3 id="shared-song-title"></h3>
-                    <div id="shared-chord-display" class="chord-display"></div>
-                    <nav class="shared-song-navigation">
-                        <button id="shared-prev" class="btn" type="button">Anterior</button>
-                        <span id="shared-song-position"></span>
-                        <button id="shared-next" class="btn" type="button">Siguiente</button>
-                    </nav>
-                </article>
+                <div class="shared-playlist-content">
+                    <aside class="shared-song-sidebar">
+                        <h3>Canciones</h3>
+                        <ol id="shared-song-list" class="shared-song-list"></ol>
+                    </aside>
+                    <article id="shared-song-reader" class="shared-song-reader">
+                        <h3 id="shared-song-title"></h3>
+                        <div id="shared-chord-display" class="chord-display"></div>
+                    </article>
+                </div>
+                <nav class="shared-song-navigation">
+                    <button id="shared-prev" class="btn" type="button">Anterior</button>
+                    <span id="shared-song-position"></span>
+                    <button id="shared-next" class="btn" type="button">Siguiente</button>
+                </nav>
             </section>
         </main>
     </div>
@@ -191,7 +196,7 @@
     <script src="js/storage.js?v=20260823"></script>
     <script src="js/chordpro.js?v=20260823"></script>
     <script src="js/ui.js?v=20260824-3"></script>
-    <script src="js/app.js?v=20260824-4"></script>
+    <script src="js/app.js?v=20260824-6"></script>
 </body>
 
 </html>

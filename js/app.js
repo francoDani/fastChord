@@ -1,3 +1,7 @@
+window.addEventListener('hashchange', function () {
+  window.location.reload();
+});
+
 document.addEventListener('DOMContentLoaded', function () {
 
   const els = UI.getElements();
