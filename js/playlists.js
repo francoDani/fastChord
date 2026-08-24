@@ -52,6 +52,31 @@ const Playlists = (function () {
       });
   }
 
+  function loadShared(token) {
+    return SupabaseClient
+      .rpc('get_shared_playlist', { requested_token: token })
+      .then(function (result) {
+        if (result.error) throw result.error;
+        const rows = result.data || [];
+        if (rows.length === 0) return null;
+        return {
+          name: rows[0].playlist_name,
+          description: rows[0].playlist_description || '',
+          songs: rows.sort(function (a, b) { return a.song_position - b.song_position; }).map(function (row) {
+            return {
+              id: row.song_id,
+              title: row.song_title,
+              artist: row.song_artist || '',
+              category: row.song_category || '',
+              body: row.song_body || '',
+              youtube: row.song_youtube || '',
+              slot: row.slot
+            };
+          })
+        };
+      });
+  }
+
   function getSlots() {
     return SLOTS.slice();
   }
@@ -60,5 +85,5 @@ const Playlists = (function () {
     return window.location.origin + window.location.pathname + '#playlist=' + encodeURIComponent(token);
   }
 
-  return { loadAll: loadAll, create: create, getSlots: getSlots, getShareUrl: getShareUrl };
+  return { loadAll: loadAll, loadShared: loadShared, create: create, getSlots: getSlots, getShareUrl: getShareUrl };
 })();

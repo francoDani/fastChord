@@ -259,6 +259,92 @@ html, body {
   background: var(--bg-card);
 }
 
+.shared-playlist-view {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: 28px 24px 44px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.shared-playlist-header {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.shared-playlist-header h1 {
+  color: var(--accent);
+  font-size: 1rem;
+  margin-bottom: 18px;
+}
+
+.shared-playlist-header h2 {
+  font-size: 1.45rem;
+}
+
+.shared-playlist-header p {
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.shared-song-list {
+  display: grid;
+  gap: 3px;
+  margin: 18px 0 26px;
+  padding-left: 28px;
+}
+
+.shared-song-list li {
+  padding-left: 5px;
+}
+
+.shared-song-list li.active {
+  color: var(--accent);
+}
+
+.shared-song-button {
+  width: 100%;
+  padding: 9px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.shared-song-button:hover {
+  background: var(--bg-card);
+}
+
+.shared-song-reader {
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+}
+
+.shared-song-reader h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.shared-song-reader .chord-display {
+  padding: 0 0 24px;
+  overflow: visible;
+}
+
+.shared-song-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.shared-song-navigation span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
 .playlist-form {
   width: min(100%, 720px);
   margin: 0 auto;

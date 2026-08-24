@@ -162,6 +162,24 @@
                 </div>
                 <ol id="playlist-song-list" class="playlist-song-list"></ol>
             </section>
+
+            <section id="shared-playlist-view" class="hidden shared-playlist-view">
+                <header class="shared-playlist-header">
+                    <h1>FastChord</h1>
+                    <h2 id="shared-playlist-title"></h2>
+                    <p id="shared-playlist-description"></p>
+                </header>
+                <ol id="shared-song-list" class="shared-song-list"></ol>
+                <article id="shared-song-reader" class="shared-song-reader">
+                    <h3 id="shared-song-title"></h3>
+                    <div id="shared-chord-display" class="chord-display"></div>
+                    <nav class="shared-song-navigation">
+                        <button id="shared-prev" class="btn" type="button">Anterior</button>
+                        <span id="shared-song-position"></span>
+                        <button id="shared-next" class="btn" type="button">Siguiente</button>
+                    </nav>
+                </article>
+            </section>
         </main>
     </div>
 
@@ -173,7 +191,7 @@
     <script src="js/storage.js?v=20260823"></script>
     <script src="js/chordpro.js?v=20260823"></script>
     <script src="js/ui.js?v=20260824-3"></script>
-    <script src="js/app.js?v=20260824-3"></script>
+    <script src="js/app.js?v=20260824-4"></script>
 </body>
 
 </html>

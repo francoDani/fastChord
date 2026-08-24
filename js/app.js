@@ -1,6 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
 
   const els = UI.getElements();
+  const sharedMatch = window.location.hash.match(/^#playlist=([^&]+)$/);
+  if (sharedMatch) {
+    initSharedPlaylist(decodeURIComponent(sharedMatch[1]));
+    return;
+  }
 
   const authButton = document.getElementById('btn-auth');
   const authUser = document.getElementById('auth-user');
@@ -444,5 +449,64 @@ document.addEventListener('DOMContentLoaded', function () {
       // Cambiar el icono o estado visual del botón según prefieras
       btnToggleChords.classList.toggle('active', isHidden);
       btnToggleChords.title = isHidden ? "Mostrar acordes" : "Ocultar acordes";
+    });
+  }
+
+  function initSharedPlaylist(token) {
+    document.getElementById('sidebar').classList.add('hidden');
+    document.getElementById('btn-toggle-sidebar').classList.add('hidden');
+    const view = document.getElementById('shared-playlist-view');
+    view.classList.remove('hidden');
+    const list = document.getElementById('shared-song-list');
+    const reader = document.getElementById('shared-song-reader');
+    const title = document.getElementById('shared-playlist-title');
+    const description = document.getElementById('shared-playlist-description');
+    let songs = [];
+    let currentIndex = 0;
+
+    function showSong(index) {
+      currentIndex = index;
+      const song = songs[currentIndex];
+      if (!song) return;
+      document.getElementById('shared-song-title').textContent = song.title;
+      document.getElementById('shared-chord-display').innerHTML = ChordPro.render(song.body, 0);
+      document.getElementById('shared-song-position').textContent = (currentIndex + 1) + ' / ' + songs.length;
+      document.getElementById('shared-prev').disabled = currentIndex === 0;
+      document.getElementById('shared-next').disabled = currentIndex === songs.length - 1;
+      Array.prototype.forEach.call(list.children, function (item, itemIndex) {
+        item.classList.toggle('active', itemIndex === currentIndex);
+      });
+    }
+
+    Playlists.loadShared(token).then(function (playlist) {
+      if (!playlist) throw new Error('El cancionero no existe o ya no está disponible.');
+      songs = playlist.songs;
+      title.textContent = playlist.name;
+      description.textContent = playlist.description;
+      list.innerHTML = '';
+      songs.forEach(function (song, index) {
+        const item = document.createElement('li');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'shared-song-button';
+        button.textContent = song.title;
+        button.addEventListener('click', function () { showSong(index); });
+        item.appendChild(button);
+        list.appendChild(item);
+      });
+      reader.classList.toggle('hidden', songs.length === 0);
+      showSong(0);
+    }).catch(function (error) {
+      title.textContent = 'Cancionero no disponible';
+      description.textContent = error.message;
+      list.innerHTML = '';
+      reader.classList.add('hidden');
+    });
+
+    document.getElementById('shared-prev').addEventListener('click', function () {
+      if (currentIndex > 0) showSong(currentIndex - 1);
+    });
+    document.getElementById('shared-next').addEventListener('click', function () {
+      if (currentIndex < songs.length - 1) showSong(currentIndex + 1);
     });
   }
