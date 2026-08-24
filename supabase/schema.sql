@@ -99,7 +99,7 @@ create policy songs_editor_insert on public.songs for insert
     updated_by = auth.uid() and is_official = true and deleted_at is null);
 create policy songs_editor_update on public.songs for update
   using (public.is_editor_or_admin())
-  with check (public.is_editor_or_admin() and is_official = true);
+  with check (public.is_editor_or_admin() and updated_by = auth.uid() and is_official = true);
 create policy songs_admin_delete on public.songs for delete
   using (public.is_admin());
 

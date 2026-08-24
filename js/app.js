@@ -113,9 +113,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const song = Storage.getAll().find(function (s) { return s.id === id; });
     if (!song || song.isDefault || !Auth.canEdit()) return;
     if (confirm('¿Eliminar esta canción?')) {
-      Storage.remove(id);
-      UI.showView('empty');
-      UI.refreshList(els.searchInput.value, els.categoryFilter.value);
+      Storage.remove(id)
+        .then(function () {
+          UI.showView('empty');
+          UI.refreshList(els.searchInput.value, els.categoryFilter.value);
+        })
+        .catch(function (error) {
+          console.error('Error eliminando canción', error);
+          alert('No se pudo eliminar la canción: ' + (error.message || error));
+        });
     }
   });
 

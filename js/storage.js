@@ -93,19 +93,67 @@ const Storage = (function () {
   }
 
   function update(id, data) {
-    const songs = getUserSongs();
-    const idx = songs.findIndex(function (s) { return s.id === id; });
-    if (idx === -1) return null;
-    songs[idx] = Object.assign({}, songs[idx], data, {
-      updatedAt: new Date().toISOString()
-    });
-    saveAll(songs);
-    return songs[idx];
+    const user = Auth.getUser();
+    if (!user || !Auth.canEdit()) {
+      return Promise.reject(new Error('Solo un editor o administrador puede editar canciones.'));
+    }
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+      return Promise.reject(new Error('Esta canción todavía no está migrada a Supabase.'));
+    }
+
+    return SupabaseClient
+      .from('songs')
+      .update({
+        title: data.title || 'Sin título',
+        artist: data.artist || '',
+        category: data.category || '',
+        body: data.body || '',
+        youtube: data.youtube || '',
+        updated_by: user.id,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select('id, source_file, title, artist, category, body, youtube, is_official, deleted_at')
+      .single()
+      .then(function (result) {
+        if (result.error) throw result.error;
+        const updatedSong = Object.assign({}, result.data, {
+          source: result.data.source_file || '',
+          isDefault: false,
+          artist: result.data.artist || '',
+          category: result.data.category || '',
+          youtube: result.data.youtube || '',
+          body: result.data.body || '',
+          notes: ''
+        });
+        const index = defaultSongs.findIndex(function (song) { return song.id === id; });
+        if (index !== -1) defaultSongs[index] = updatedSong;
+        return updatedSong;
+      });
   }
 
   function remove(id) {
-    const songs = getUserSongs().filter(function (s) { return s.id !== id; });
-    saveAll(songs);
+    const user = Auth.getUser();
+    if (!user || !Auth.canEdit()) {
+      return Promise.reject(new Error('Solo un editor o administrador puede eliminar canciones.'));
+    }
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+      return Promise.reject(new Error('Esta canción todavía no está migrada a Supabase.'));
+    }
+
+    return SupabaseClient
+      .from('songs')
+      .update({
+        deleted_at: new Date().toISOString(),
+        updated_by: user.id,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .then(function (result) {
+        if (result.error) throw result.error;
+        defaultSongs = defaultSongs.filter(function (song) { return song.id !== id; });
+        return true;
+      });
   }
 
   function updateNotes(id, notes) {
