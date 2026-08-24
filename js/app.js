@@ -623,11 +623,16 @@ document.addEventListener('DOMContentLoaded', function () {
       currentIndex = index;
       const song = songs[currentIndex];
       if (!song) return;
+    
       document.getElementById('shared-song-title').textContent = song.title;
-      document.getElementById('shared-chord-display').innerHTML = ChordPro.render(song.body, 0);
+      const display = document.getElementById('shared-chord-display');
+      display.innerHTML = ChordPro.render(song.body, 0);
+      display.classList.add('hide-chords');
+    
       document.getElementById('shared-song-position').textContent = (currentIndex + 1) + ' / ' + songs.length;
       document.getElementById('shared-prev').disabled = currentIndex === 0;
       document.getElementById('shared-next').disabled = currentIndex === songs.length - 1;
+    
       Array.prototype.forEach.call(list.children, function (item, itemIndex) {
         item.classList.toggle('active', itemIndex === currentIndex);
       });

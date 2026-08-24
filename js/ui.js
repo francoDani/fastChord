@@ -82,36 +82,39 @@ const UI = (function () {
   }
 
   function updateCategoryFilter() {
+    // Si no existen los elementos, simplemente salimos (evita el crash)
+    if (!els.categoryFilter && !els.categoryList) return;
+  
     const cats = [];
     songsCache.forEach(function (s) {
-      if (s.category) {
-        // Separa por comas, limpia espacios y agrega las únicas
-        s.category.split(',').forEach(function (c) {
-          const clean = c.trim();
-          if (clean && cats.indexOf(clean) === -1) {
-            cats.push(clean);
-          }
-        });
+      if (s.category && cats.indexOf(s.category) === -1) {
+        cats.push(s.category);
       }
     });
     cats.sort();
-
-    const current = els.categoryFilter.value;
-    els.categoryFilter.innerHTML = '<option value="">Todas las categorías</option>';
-    cats.forEach(function (c) {
-      const opt = document.createElement('option');
-      opt.value = c;
-      opt.textContent = c;
-      els.categoryFilter.appendChild(opt);
-    });
-    els.categoryFilter.value = current;
-
-    els.categoryList.innerHTML = '';
-    cats.forEach(function (c) {
-      const opt = document.createElement('option');
-      opt.value = c;
-      els.categoryList.appendChild(opt);
-    });
+  
+    // Actualizar el <select> de filtro (si existe)
+    if (els.categoryFilter) {
+      const current = els.categoryFilter.value;
+      els.categoryFilter.innerHTML = '<option value="">Todas las categorías</option>';
+      cats.forEach(function (c) {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        els.categoryFilter.appendChild(opt);
+      });
+      els.categoryFilter.value = current;
+    }
+  
+    // Actualizar el <datalist> del formulario (si existe)
+    if (els.categoryList) {
+      els.categoryList.innerHTML = '';
+      cats.forEach(function (c) {
+        const opt = document.createElement('option');
+        opt.value = c;
+        els.categoryList.appendChild(opt);
+      });
+    }
   }
 
   function selectSong(id) {

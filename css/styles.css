@@ -981,10 +981,7 @@ html, body {
   }
 
   .shared-song-sidebar {
-    max-height: 145px;
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-    padding: 0 0 8px;
+    display: none;
   }
 
   .shared-song-list {
@@ -993,7 +990,19 @@ html, body {
   }
 
   .shared-song-reader {
-    padding: 10px 4px 14px;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .shared-playlist-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding-bottom: 0;
+  }
+  .shared-playlist-header h1 {
+    margin-bottom: 0;
+    font-size: .9rem;
   }
 }
 #btn-new-playlist {
@@ -1003,4 +1012,12 @@ html, body {
 }
 #btn-new-playlist:hover, #btn-new-playlist:active {
   background: #d978b7;
+}
+.hide-chords .chords {
+  display: none !important;
+}
+
+/* Opcional: reduce un poco el espacio cuando no hay acordes */
+.hide-chords .chord-line {
+  margin-bottom: 0.25em;
 }
