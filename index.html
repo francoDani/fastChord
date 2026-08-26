@@ -141,10 +141,20 @@
             <div id="playlist-form" class="hidden playlist-form">
                 <h2 id="playlist-form-title">Nueva playlist</h2>
                 <form id="form-playlist">
+                    <div class="playlist-type-selector">
+                        <button type="button" id="btn-type-misa" class="btn-type-tab active">⛪ Cancionero de Misa</button>
+                        <button type="button" id="btn-type-custom" class="btn-type-tab">🎵 Cancionero Custom</button>
+                    </div>
                     <label>Nombre de la playlist
                         <input type="text" id="playlist-name" required>
                     </label>
-                    <div id="playlist-slots" class="playlist-slots"></div>
+                    <div id="playlist-misa-section">
+                        <div id="playlist-slots" class="playlist-slots"></div>
+                    </div>
+                    <div id="playlist-custom-section" class="hidden">
+                        <div id="custom-songs-container" class="custom-songs-container"></div>
+                        <button type="button" id="btn-add-custom-song" class="btn btn-secondary btn-add-song">+ Agregar canción</button>
+                    </div>
                     <div class="form-actions">
                         <button type="submit" id="btn-save-playlist" class="btn btn-primary">Crear playlist</button>
                         <button type="button" id="btn-cancel-playlist" class="btn">Cancelar</button>

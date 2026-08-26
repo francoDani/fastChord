@@ -115,15 +115,125 @@ document.addEventListener('DOMContentLoaded', function () {
     return selections;
   }
 
+  let currentPlaylistType = 'misa';
+  const MAX_CUSTOM_SONGS = 10;
+  const btnTypeMisa = document.getElementById('btn-type-misa');
+  const btnTypeCustom = document.getElementById('btn-type-custom');
+  const sectionMisa = document.getElementById('playlist-misa-section');
+  const sectionCustom = document.getElementById('playlist-custom-section');
+  const btnAddCustomSong = document.getElementById('btn-add-custom-song');
+  const customContainer = document.getElementById('custom-songs-container');
+
+  function setPlaylistType(type) {
+    currentPlaylistType = type || 'misa';
+    btnTypeMisa.classList.toggle('active', currentPlaylistType === 'misa');
+    btnTypeCustom.classList.toggle('active', currentPlaylistType === 'custom');
+    sectionMisa.classList.toggle('hidden', currentPlaylistType !== 'misa');
+    sectionCustom.classList.toggle('hidden', currentPlaylistType !== 'custom');
+  }
+
+  if (btnTypeMisa && btnTypeCustom) {
+    btnTypeMisa.addEventListener('click', function () { setPlaylistType('misa'); });
+    btnTypeCustom.addEventListener('click', function () {
+      setPlaylistType('custom');
+      if (customContainer.children.length === 0) {
+        addCustomSongRow();
+      }
+    });
+  }
+
+  function updateAddCustomSongBtnState() {
+    if (!btnAddCustomSong || !customContainer) return;
+    const count = customContainer.children.length;
+    btnAddCustomSong.disabled = count >= MAX_CUSTOM_SONGS;
+    if (count >= MAX_CUSTOM_SONGS) {
+      btnAddCustomSong.textContent = 'Límite alcanzado (máx 10 canciones)';
+    } else {
+      btnAddCustomSong.textContent = '+ Agregar canción (' + count + '/' + MAX_CUSTOM_SONGS + ')';
+    }
+  }
+
+  function addCustomSongRow(selectedSongId) {
+    if (!customContainer || customContainer.children.length >= MAX_CUSTOM_SONGS) return;
+
+    const rowIndex = customContainer.children.length + 1;
+    const row = document.createElement('div');
+    row.className = 'custom-song-row';
+
+    const label = document.createElement('label');
+    label.textContent = 'Canción ' + rowIndex;
+
+    const select = document.createElement('select');
+    select.className = 'custom-song-select';
+    
+    const emptyOption = document.createElement('option');
+    emptyOption.value = '';
+    emptyOption.textContent = 'Seleccionar canción';
+    select.appendChild(emptyOption);
+
+    const allSongs = Storage.getAll().slice().sort(function (a, b) {
+      return a.title.localeCompare(b.title);
+    });
+
+    allSongs.forEach(function (song) {
+      const option = document.createElement('option');
+      option.value = song.id;
+      option.textContent = song.title + (song.artist ? ' (' + song.artist + ')' : '');
+      if (selectedSongId && song.id === selectedSongId) {
+        option.selected = true;
+      }
+      select.appendChild(option);
+    });
+
+    label.appendChild(select);
+    row.appendChild(label);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-remove-row';
+    removeBtn.textContent = '✕';
+    removeBtn.title = 'Eliminar canción';
+    removeBtn.addEventListener('click', function () {
+      customContainer.removeChild(row);
+      renumberCustomSongRows();
+      updateAddCustomSongBtnState();
+    });
+    row.appendChild(removeBtn);
+
+    customContainer.appendChild(row);
+    updateAddCustomSongBtnState();
+
+    row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function renumberCustomSongRows() {
+    if (!customContainer) return;
+    Array.prototype.forEach.call(customContainer.children, function (row, index) {
+      const label = row.querySelector('label');
+      if (label) {
+        const select = label.querySelector('select');
+        label.textContent = 'Canción ' + (index + 1);
+        if (select) label.appendChild(select);
+      }
+    });
+  }
+
+  if (btnAddCustomSong) {
+    btnAddCustomSong.addEventListener('click', function () {
+      addCustomSongRow();
+    });
+  }
+
   function songsForSlot(slot, selectedIds) {
     const allSongs = Storage.getAll();
     const selectedLookup = {};
     (selectedIds || []).forEach(function (id) { selectedLookup[id] = true; });
     const result = [];
     const seen = {};
+    const targetCategory = slot.categoryFilter || slot.label;
     allSongs.forEach(function (song) {
       const matchesCategory = (song.category || '').split(',').some(function (category) {
-        return normalizeCategory(category) === normalizeCategory(slot.label);
+        return normalizeCategory(category) === normalizeCategory(targetCategory);
       });
       if (!matchesCategory && !selectedLookup[song.id]) return;
       if (seen[song.id]) return;
@@ -138,7 +248,30 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('playlist-form-title').textContent = playlist ? 'Editar playlist' : 'Nueva playlist';
     document.getElementById('btn-save-playlist').textContent = playlist ? 'Guardar playlist' : 'Crear playlist';
     document.getElementById('playlist-name').value = playlist ? (playlist.name || '') : '';
+    
+    const type = playlist ? (playlist.type || 'misa') : 'misa';
+    setPlaylistType(type);
+
     buildPlaylistSlots(playlist ? selectionsFromPlaylist(playlist) : {});
+
+    if (customContainer) {
+      customContainer.innerHTML = '';
+      if (playlist && type === 'custom') {
+        const songs = (playlist.playlist_songs || []).slice().sort(function (a, b) {
+          return a.position - b.position;
+        });
+        if (songs.length > 0) {
+          songs.forEach(function (item) {
+            addCustomSongRow(item.song_id);
+          });
+        } else {
+          addCustomSongRow();
+        }
+      } else {
+        addCustomSongRow();
+      }
+    }
+
     UI.showView('playlist-form');
   }
 
@@ -265,6 +398,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.getElementById('btn-new-playlist').addEventListener('click', function () {
     openPlaylistForm();
+    sidebar.classList.add('collapsed');
   });
 
   document.getElementById('btn-edit-playlist').addEventListener('click', function () {
@@ -326,19 +460,33 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('form-playlist').addEventListener('submit', function (event) {
     event.preventDefault();
     const selections = {};
-    document.querySelectorAll('#playlist-slots select, #playlist-slots .playlist-multi-dropdown').forEach(function (control) {
-      if (control.classList.contains('playlist-multi-dropdown')) {
-        selections[control.dataset.slot] = Array.prototype.slice.call(control.querySelectorAll('input:checked'))
-          .map(function (input) { return input.value; });
-      } else {
-        selections[control.dataset.slot] = control.value ? [control.value] : [];
-      }
-    });
     const name = document.getElementById('playlist-name').value.trim();
+
+    if (currentPlaylistType === 'custom') {
+      const customSongIds = [];
+      document.querySelectorAll('#custom-songs-container select').forEach(function (select) {
+        if (select.value) customSongIds.push(select.value);
+      });
+      if (customSongIds.length === 0) {
+        alert('Debes seleccionar al menos una canción para la playlist custom.');
+        return;
+      }
+      selections.custom = customSongIds;
+    } else {
+      document.querySelectorAll('#playlist-slots select, #playlist-slots .playlist-multi-dropdown').forEach(function (control) {
+        if (control.classList.contains('playlist-multi-dropdown')) {
+          selections[control.dataset.slot] = Array.prototype.slice.call(control.querySelectorAll('input:checked'))
+            .map(function (input) { return input.value; });
+        } else {
+          selections[control.dataset.slot] = control.value ? [control.value] : [];
+        }
+      });
+    }
+
     const isEditing = !!editingPlaylist;
     const saveRequest = isEditing
-      ? Playlists.update(editingPlaylist.id, name, selections)
-      : Playlists.create(name, selections);
+      ? Playlists.update(editingPlaylist.id, name, currentPlaylistType, selections)
+      : Playlists.create(name, currentPlaylistType, selections);
 
     saveRequest
       .then(function (playlist) {

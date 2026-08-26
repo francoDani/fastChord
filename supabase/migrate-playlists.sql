@@ -50,15 +50,17 @@ create unique index playlist_songs_single_slot_uidx
   where slot <> 'comunion';
 
 drop policy if exists playlists_public_read on public.playlists;
+drop policy if exists playlists_authenticated_read on public.playlists;
 create policy playlists_authenticated_read on public.playlists for select
-  using (auth.uid() is not null and deleted_at is null);
+  using (auth.uid() is not null and (deleted_at is null or public.is_editor_or_admin()));
 
 drop policy if exists playlist_songs_public_read on public.playlist_songs;
+drop policy if exists playlist_songs_authenticated_read on public.playlist_songs;
 create policy playlist_songs_authenticated_read on public.playlist_songs for select
   using (
     auth.uid() is not null and exists (
       select 1 from public.playlists p
-      where p.id = playlist_id and p.deleted_at is null
+      where p.id = playlist_id and (p.deleted_at is null or public.is_editor_or_admin())
     )
   );
 

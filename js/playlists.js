@@ -5,6 +5,7 @@ const Playlists = (function () {
     { key: 'gloria', label: 'Gloria', required: false },
     { key: 'aleluya', label: 'Aleluya', required: true },
     { key: 'ofertorio', label: 'Ofertorio', required: true },
+    { key: 'ofertorio_plus', label: 'Ofertorio+', required: false, categoryFilter: 'Ofertorio' },
     { key: 'santo', label: 'Santo', required: true },
     { key: 'cordero', label: 'Cordero', required: true },
     { key: 'comunion', label: 'Comunión', required: false, multiple: true },
@@ -15,7 +16,7 @@ const Playlists = (function () {
   function loadAll() {
     return SupabaseClient
       .from('playlists')
-      .select('id, name, description, share_token, created_at, playlist_songs(song_id, slot, position, songs(id, title, artist, category, body, youtube))')
+      .select('id, name, description, type, share_token, created_at, playlist_songs(song_id, slot, position, songs(id, title, artist, category, body, youtube))')
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .then(function (result) {
@@ -24,21 +25,35 @@ const Playlists = (function () {
       });
   }
 
-  function buildSongRows(playlistId, selections) {
+  function buildSongRows(playlistId, type, selections) {
     const rows = [];
     let position = 0;
-    SLOTS.forEach(function (slot) {
-      (selections[slot.key] || []).forEach(function (songId) {
+    if (type === 'custom') {
+      const customSongs = selections.custom || [];
+      customSongs.forEach(function (songId, index) {
         if (songId) {
-          rows.push({ playlist_id: playlistId, song_id: songId, slot: slot.key, position: position++ });
+          rows.push({
+            playlist_id: playlistId,
+            song_id: songId,
+            slot: 'custom_' + (index + 1),
+            position: position++
+          });
         }
       });
-    });
+    } else {
+      SLOTS.forEach(function (slot) {
+        (selections[slot.key] || []).forEach(function (songId) {
+          if (songId) {
+            rows.push({ playlist_id: playlistId, song_id: songId, slot: slot.key, position: position++ });
+          }
+        });
+      });
+    }
     return rows;
   }
 
-  function insertSongs(playlist, selections) {
-    const rows = buildSongRows(playlist.id, selections);
+  function insertSongs(playlist, type, selections) {
+    const rows = buildSongRows(playlist.id, type, selections);
     if (rows.length === 0) return playlist;
     return SupabaseClient.from('playlist_songs').insert(rows).then(function (songsResult) {
       if (songsResult.error) throw songsResult.error;
@@ -46,46 +61,49 @@ const Playlists = (function () {
     });
   }
 
-  function create(name, selections) {
+  function create(name, type, selections) {
     const user = Auth.getUser();
     if (!user || !Auth.canEdit()) {
       return Promise.reject(new Error('Solo un editor o administrador puede crear playlists.'));
     }
+    type = type || 'misa';
 
     return SupabaseClient
       .from('playlists')
-      .insert({ name: name, description: '', created_by: user.id, updated_by: user.id })
-      .select('id, name, description, share_token')
+      .insert({ name: name, description: '', type: type, created_by: user.id, updated_by: user.id })
+      .select('id, name, description, type, share_token')
       .single()
       .then(function (playlistResult) {
         if (playlistResult.error) throw playlistResult.error;
-        return insertSongs(playlistResult.data, selections);
+        return insertSongs(playlistResult.data, type, selections);
       });
   }
 
-  function update(id, name, selections) {
+  function update(id, name, type, selections) {
     const user = Auth.getUser();
     if (!user || !Auth.canEdit()) {
       return Promise.reject(new Error('Solo un editor o administrador puede editar playlists.'));
     }
+    type = type || 'misa';
 
     return SupabaseClient
       .from('playlists')
       .update({
         name: name,
+        type: type,
         updated_by: user.id,
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
       .is('deleted_at', null)
-      .select('id, name, description, share_token')
+      .select('id, name, description, type, share_token')
       .single()
       .then(function (playlistResult) {
         if (playlistResult.error) throw playlistResult.error;
         return SupabaseClient.from('playlist_songs').delete().eq('playlist_id', id)
           .then(function (deleteResult) {
             if (deleteResult.error) throw deleteResult.error;
-            return insertSongs(playlistResult.data, selections);
+            return insertSongs(playlistResult.data, type, selections);
           });
       });
   }
@@ -100,6 +118,7 @@ const Playlists = (function () {
         return {
           name: rows[0].playlist_name,
           description: rows[0].playlist_description || '',
+          type: rows[0].playlist_type || 'misa',
           songs: rows.sort(function (a, b) { return a.song_position - b.song_position; }).map(function (row) {
             return {
               id: row.song_id,

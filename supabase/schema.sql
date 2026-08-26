@@ -93,7 +93,7 @@ create policy profiles_admin_manage on public.profiles for update
   using (public.is_admin()) with check (public.is_admin());
 
 create policy songs_public_read on public.songs for select
-  using (deleted_at is null);
+  using (deleted_at is null or public.is_editor_or_admin());
 create policy songs_editor_insert on public.songs for insert
   with check (public.is_editor_or_admin() and created_by = auth.uid() and
     updated_by = auth.uid() and is_official = true and deleted_at is null);
@@ -113,7 +113,7 @@ create policy notes_owner_delete on public.song_notes for delete
   using (user_id = auth.uid());
 
 create policy playlists_public_read on public.playlists for select
-  using (deleted_at is null);
+  using (deleted_at is null or public.is_editor_or_admin());
 create policy playlists_editor_insert on public.playlists for insert
   with check (public.is_editor_or_admin() and deleted_at is null);
 create policy playlists_editor_update on public.playlists for update
