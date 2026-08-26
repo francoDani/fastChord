@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
       list.appendChild(item);
     });
     UI.showView('playlist-view');
+    document.getElementById('sidebar').classList.add('collapsed');
   }
 
   function selectionsFromPlaylist(playlist) {
@@ -186,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const select = document.createElement('select');
     select.className = 'custom-song-select';
-    
+
     const emptyOption = document.createElement('option');
     emptyOption.value = '';
     emptyOption.textContent = 'Seleccionar canción';
@@ -278,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('playlist-form-title').textContent = playlist ? 'Editar playlist' : 'Nueva playlist';
     document.getElementById('btn-save-playlist').textContent = playlist ? 'Guardar playlist' : 'Crear playlist';
     document.getElementById('playlist-name').value = playlist ? (playlist.name || '') : '';
-    
+
     const type = playlist ? (playlist.type || 'misa') : 'misa';
 
     buildPlaylistSlots(playlist ? selectionsFromPlaylist(playlist) : {});
@@ -608,9 +609,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-    function isCloudSongId(id) {
-      return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
-    }
+  function isCloudSongId(id) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+  }
 
   // Transposición
   document.getElementById('btn-transpose-up').addEventListener('click', function () {
@@ -767,85 +768,85 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // ====================== TOGGLE ACORDES ======================
-  const btnToggleChords = document.getElementById('btn-toggle-chords');
-  const chordDisplay = document.getElementById('chord-display');
+const btnToggleChords = document.getElementById('btn-toggle-chords');
+const chordDisplay = document.getElementById('chord-display');
 
-  if (btnToggleChords) {
-    btnToggleChords.addEventListener('click', function () {
-      chordDisplay.classList.toggle('hide-chords');
-      const isHidden = chordDisplay.classList.contains('hide-chords');
-      
-      // Cambiar el icono o estado visual del botón según prefieras
-      btnToggleChords.classList.toggle('active', isHidden);
-      btnToggleChords.title = isHidden ? "Mostrar acordes" : "Ocultar acordes";
+if (btnToggleChords) {
+  btnToggleChords.addEventListener('click', function () {
+    chordDisplay.classList.toggle('hide-chords');
+    const isHidden = chordDisplay.classList.contains('hide-chords');
+
+    // Cambiar el icono o estado visual del botón según prefieras
+    btnToggleChords.classList.toggle('active', isHidden);
+    btnToggleChords.title = isHidden ? "Mostrar acordes" : "Ocultar acordes";
+  });
+}
+
+function initSharedPlaylist(token) {
+  document.getElementById('sidebar').classList.add('hidden');
+  document.getElementById('btn-toggle-sidebar').classList.add('hidden');
+  document.getElementById('empty-state').classList.add('hidden');
+  document.getElementById('song-view').classList.add('hidden');
+  document.getElementById('song-form').classList.add('hidden');
+  document.getElementById('playlist-form').classList.add('hidden');
+  document.getElementById('playlist-view').classList.add('hidden');
+  const view = document.getElementById('shared-playlist-view');
+  view.classList.remove('hidden');
+  const list = document.getElementById('shared-song-list');
+  const reader = document.getElementById('shared-song-reader');
+  const title = document.getElementById('shared-playlist-title');
+  const description = document.getElementById('shared-playlist-description');
+  let songs = [];
+  let currentIndex = 0;
+
+  function showSong(index) {
+    currentIndex = index;
+    const song = songs[currentIndex];
+    if (!song) return;
+
+    document.getElementById('shared-song-title').textContent = song.title;
+    const display = document.getElementById('shared-chord-display');
+    display.innerHTML = ChordPro.render(song.body, 0);
+    display.classList.add('hide-chords');
+
+    document.getElementById('shared-song-position').textContent = (currentIndex + 1) + ' / ' + songs.length;
+    document.getElementById('shared-prev').disabled = currentIndex === 0;
+    document.getElementById('shared-next').disabled = currentIndex === songs.length - 1;
+
+    Array.prototype.forEach.call(list.children, function (item, itemIndex) {
+      item.classList.toggle('active', itemIndex === currentIndex);
     });
   }
 
-  function initSharedPlaylist(token) {
-    document.getElementById('sidebar').classList.add('hidden');
-    document.getElementById('btn-toggle-sidebar').classList.add('hidden');
-    document.getElementById('empty-state').classList.add('hidden');
-    document.getElementById('song-view').classList.add('hidden');
-    document.getElementById('song-form').classList.add('hidden');
-    document.getElementById('playlist-form').classList.add('hidden');
-    document.getElementById('playlist-view').classList.add('hidden');
-    const view = document.getElementById('shared-playlist-view');
-    view.classList.remove('hidden');
-    const list = document.getElementById('shared-song-list');
-    const reader = document.getElementById('shared-song-reader');
-    const title = document.getElementById('shared-playlist-title');
-    const description = document.getElementById('shared-playlist-description');
-    let songs = [];
-    let currentIndex = 0;
-
-    function showSong(index) {
-      currentIndex = index;
-      const song = songs[currentIndex];
-      if (!song) return;
-    
-      document.getElementById('shared-song-title').textContent = song.title;
-      const display = document.getElementById('shared-chord-display');
-      display.innerHTML = ChordPro.render(song.body, 0);
-      display.classList.add('hide-chords');
-    
-      document.getElementById('shared-song-position').textContent = (currentIndex + 1) + ' / ' + songs.length;
-      document.getElementById('shared-prev').disabled = currentIndex === 0;
-      document.getElementById('shared-next').disabled = currentIndex === songs.length - 1;
-    
-      Array.prototype.forEach.call(list.children, function (item, itemIndex) {
-        item.classList.toggle('active', itemIndex === currentIndex);
-      });
-    }
-
-    Playlists.loadShared(token).then(function (playlist) {
-      if (!playlist) throw new Error('El cancionero no existe o ya no está disponible.');
-      songs = playlist.songs;
-      title.textContent = playlist.name;
-      description.textContent = playlist.description;
-      list.innerHTML = '';
-      songs.forEach(function (song, index) {
-        const item = document.createElement('li');
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'shared-song-button';
-        button.textContent = song.title;
-        button.addEventListener('click', function () { showSong(index); });
-        item.appendChild(button);
-        list.appendChild(item);
-      });
-      reader.classList.toggle('hidden', songs.length === 0);
-      showSong(0);
-    }).catch(function (error) {
-      title.textContent = 'Cancionero no disponible';
-      description.textContent = error.message;
-      list.innerHTML = '';
-      reader.classList.add('hidden');
+  Playlists.loadShared(token).then(function (playlist) {
+    if (!playlist) throw new Error('El cancionero no existe o ya no está disponible.');
+    songs = playlist.songs;
+    title.textContent = playlist.name;
+    description.textContent = playlist.description;
+    list.innerHTML = '';
+    songs.forEach(function (song, index) {
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'shared-song-button';
+      button.textContent = song.title;
+      button.addEventListener('click', function () { showSong(index); });
+      item.appendChild(button);
+      list.appendChild(item);
     });
+    reader.classList.toggle('hidden', songs.length === 0);
+    showSong(0);
+  }).catch(function (error) {
+    title.textContent = 'Cancionero no disponible';
+    description.textContent = error.message;
+    list.innerHTML = '';
+    reader.classList.add('hidden');
+  });
 
-    document.getElementById('shared-prev').addEventListener('click', function () {
-      if (currentIndex > 0) showSong(currentIndex - 1);
-    });
-    document.getElementById('shared-next').addEventListener('click', function () {
-      if (currentIndex < songs.length - 1) showSong(currentIndex + 1);
-    });
-  }
+  document.getElementById('shared-prev').addEventListener('click', function () {
+    if (currentIndex > 0) showSong(currentIndex - 1);
+  });
+  document.getElementById('shared-next').addEventListener('click', function () {
+    if (currentIndex < songs.length - 1) showSong(currentIndex + 1);
+  });
+}
