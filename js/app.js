@@ -130,6 +130,27 @@ document.addEventListener('DOMContentLoaded', function () {
     btnTypeCustom.classList.toggle('active', currentPlaylistType === 'custom');
     sectionMisa.classList.toggle('hidden', currentPlaylistType !== 'misa');
     sectionCustom.classList.toggle('hidden', currentPlaylistType !== 'custom');
+
+    const isMisa = currentPlaylistType === 'misa';
+    const misaControls = sectionMisa.querySelectorAll('select, input');
+    misaControls.forEach(function (ctrl) {
+      if (isMisa) {
+        const slotKey = ctrl.dataset.slot;
+        const slot = Playlists.getSlots().find(function (s) { return s.key === slotKey; });
+        if (slot && slot.required) {
+          ctrl.required = true;
+        }
+        ctrl.disabled = false;
+      } else {
+        ctrl.required = false;
+        ctrl.disabled = true;
+      }
+    });
+
+    const customControls = sectionCustom.querySelectorAll('select, input');
+    customControls.forEach(function (ctrl) {
+      ctrl.disabled = !isMisa ? false : true;
+    });
   }
 
   if (btnTypeMisa && btnTypeCustom) {
@@ -231,15 +252,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const result = [];
     const seen = {};
     const targetCategory = slot.categoryFilter || slot.label;
+    const targetNorm = normalizeCategory(targetCategory);
+
     allSongs.forEach(function (song) {
-      const matchesCategory = (song.category || '').split(',').some(function (category) {
-        return normalizeCategory(category) === normalizeCategory(targetCategory);
-      });
-      if (!matchesCategory && !selectedLookup[song.id]) return;
       if (seen[song.id]) return;
-      seen[song.id] = true;
-      result.push(song);
+      const songCategories = (song.category || '').split(',').map(function (c) {
+        return normalizeCategory(c);
+      });
+      const matchesCategory = songCategories.indexOf(targetNorm) !== -1;
+      if (matchesCategory || selectedLookup[song.id]) {
+        seen[song.id] = true;
+        result.push(song);
+      }
     });
+
+    result.sort(function (a, b) {
+      return (a.title || '').localeCompare(b.title || '', 'es', { sensitivity: 'base' });
+    });
+
     return result;
   }
 
@@ -250,7 +280,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('playlist-name').value = playlist ? (playlist.name || '') : '';
     
     const type = playlist ? (playlist.type || 'misa') : 'misa';
-    setPlaylistType(type);
 
     buildPlaylistSlots(playlist ? selectionsFromPlaylist(playlist) : {});
 
@@ -272,6 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
+    setPlaylistType(type);
     UI.showView('playlist-form');
   }
 
@@ -329,7 +359,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function normalizeCategory(value) {
-    return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (!value) return '';
+    return value.toString().toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
   function copyToClipboard(text) {

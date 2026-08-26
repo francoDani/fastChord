@@ -40,6 +40,28 @@ const UI = (function () {
     return div.innerHTML;
   }
 
+  const CANONICAL_CATEGORIES = {
+    'entrada': 'Entrada',
+    'perdon': 'Perdón',
+    'gloria': 'Gloria',
+    'aleluya': 'Aleluya',
+    'ofertorio': 'Ofertorio',
+    'santo': 'Santo',
+    'cordero': 'Cordero',
+    'comunion': 'Comunión',
+    'meditacion': 'Meditación',
+    'salida': 'Salida',
+    'mariana': 'Mariana'
+  };
+
+  function getCanonicalCategoryName(raw) {
+    if (!raw) return '';
+    const key = normalizeCategory(raw.trim());
+    if (CANONICAL_CATEGORIES[key]) return CANONICAL_CATEGORIES[key];
+    const clean = raw.trim();
+    return clean.charAt(0).toUpperCase() + clean.slice(1);
+  }
+
   function refreshList(filterText, category) {
     filterText = filterText || '';
     category = category || '';
@@ -59,11 +81,11 @@ const UI = (function () {
     }
 
     if (category) {
+      const selectedNorm = normalizeCategory(category);
       filtered = filtered.filter(function (s) {
         if (!s.category) return false;
-        // Divide por comas y limpia espacios para buscar coincidencia
-        const songCats = s.category.split(',').map(function (c) { return c.trim().toLowerCase(); });
-        return songCats.indexOf(category.toLowerCase()) !== -1;
+        const songCats = s.category.split(',').map(function (c) { return normalizeCategory(c.trim()); });
+        return songCats.indexOf(selectedNorm) !== -1;
       });
     }
 
@@ -85,13 +107,22 @@ const UI = (function () {
     // Si no existen los elementos, simplemente salimos (evita el crash)
     if (!els.categoryFilter && !els.categoryList) return;
   
-    const cats = [];
+    const catsMap = {};
     songsCache.forEach(function (s) {
-      if (s.category && cats.indexOf(s.category) === -1) {
-        cats.push(s.category);
-      }
+      if (!s.category) return;
+      s.category.split(',').forEach(function (c) {
+        const clean = c.trim();
+        if (!clean) return;
+        const normKey = normalizeCategory(clean);
+        if (!catsMap[normKey]) {
+          catsMap[normKey] = getCanonicalCategoryName(clean);
+        }
+      });
     });
-    cats.sort();
+
+    const cats = Object.keys(catsMap).map(function (k) { return catsMap[k]; }).sort(function (a, b) {
+      return a.localeCompare(b, 'es', { sensitivity: 'base' });
+    });
   
     // Actualizar el <select> de filtro (si existe)
     if (els.categoryFilter) {
@@ -144,7 +175,7 @@ const UI = (function () {
         if (clean) {
           const badge = document.createElement('span');
           badge.className = 'badge';
-          badge.textContent = clean;
+          badge.textContent = getCanonicalCategoryName(clean);
           els.songCategory.appendChild(badge);
         }
       });
