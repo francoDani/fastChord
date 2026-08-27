@@ -18,7 +18,8 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   background: var(--bg);
   color: var(--text);
@@ -32,9 +33,11 @@ html, body {
 #app {
   display: flex;
   height: 100%;
-  position: relative; /* Contenedor de referencia para elementos absolutos */
+  position: relative;
+  /* Contenedor de referencia para elementos absolutos */
   overflow: hidden;
 }
+
 /* Auto-scroll activo */
 #btn-autoscroll.active {
   background: var(--accent);
@@ -45,7 +48,8 @@ html, body {
 
 /* ========== SIDEBAR ========== */
 #sidebar {
-  position: absolute; /* Lo saca del flujo de caja, evitando que empuje el workspace */
+  position: absolute;
+  /* Lo saca del flujo de caja, evitando que empuje el workspace */
   top: 0;
   left: 0;
   width: 320px;
@@ -55,15 +59,20 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  z-index: 200; /* Por encima del workspace */
-  box-shadow: 4px 0px 15px rgba(0, 0, 0, 0.5); /* Sombra elegante para profundidad */
-  transition: transform 0.25s ease; /* Transición por desplazamiento en lugar de ancho */
+  z-index: 200;
+  /* Por encima del workspace */
+  box-shadow: 4px 0px 15px rgba(0, 0, 0, 0.5);
+  /* Sombra elegante para profundidad */
+  transition: transform 0.25s ease;
+  /* Transición por desplazamiento en lugar de ancho */
   overflow: hidden;
 }
 
 #sidebar.collapsed {
-  transform: translateX(-100%); /* Oculta el sidebar deslizándolo hacia la izquierda fuera de la pantalla */
-  width: 320px; /* Mantiene la estructura interna intacta al cerrarse */
+  transform: translateX(-100%);
+  /* Oculta el sidebar deslizándolo hacia la izquierda fuera de la pantalla */
+  width: 320px;
+  /* Mantiene la estructura interna intacta al cerrarse */
   min-width: 280px;
   border-right: none;
   box-shadow: none;
@@ -725,11 +734,14 @@ html, body {
   accent-color: var(--accent);
 }
 
-.search-box, .filter-box {
+.search-box,
+.filter-box {
   padding: 10px 12px;
 }
 
-#search-input, #category-filter, #playlist-name {
+#search-input,
+#category-filter,
+#playlist-name {
   width: 100%;
   padding: 10px 12px;
   background: var(--bg-card);
@@ -771,7 +783,8 @@ html, body {
 /* ========== WORKSPACE ========== */
 #workspace {
   flex: 1;
-  width: 100%; /* Ocupa siempre todo el ancho disponible */
+  width: 100%;
+  /* Ocupa siempre todo el ancho disponible */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -783,7 +796,8 @@ html, body {
   position: absolute;
   top: 8px;
   left: 8px;
-  z-index: 300; /* Por encima del sidebar (que tiene 200) */
+  z-index: 300;
+  /* Por encima del sidebar (que tiene 200) */
   width: 42px;
   height: 42px;
   border-radius: 50%;
@@ -795,7 +809,7 @@ html, body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .empty-state {
@@ -815,10 +829,12 @@ html, body {
 }
 
 .song-header {
-  padding: 14px 16px 14px 55px; /* Espacio para el botón flotante de menú */
+  padding: 14px 16px 14px 55px;
+  /* Espacio para el botón flotante de menú */
   border-bottom: 1px solid var(--border);
   display: flex;
-  flex-direction: column; /* Apila los metadatos arriba y los controles abajo */
+  flex-direction: column;
+  /* Apila los metadatos arriba y los controles abajo */
   gap: 12px;
   background: var(--bg-sidebar);
   flex-shrink: 0;
@@ -909,8 +925,13 @@ html, body {
 }
 
 @keyframes pulseDelay {
-  from { opacity: 1; }
-  to { opacity: 0.7; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.7;
+  }
 }
 
 /* Chord display */
@@ -1049,7 +1070,8 @@ html, body {
   transition: background 0.15s;
 }
 
-.btn:hover, .btn:active {
+.btn:hover,
+.btn:active {
   background: #76b5f0;
   border-color: var(--border);
   color: #0f0f0f;
@@ -1084,6 +1106,7 @@ html, body {
     width: 280px;
   }
 }
+
 .notes-header {
   display: flex;
   justify-content: space-between;
@@ -1100,9 +1123,11 @@ html, body {
   font-size: 10px;
   min-height: 24px;
 }
+
 #btn-save-notes:hover {
   background-color: #8ab9e4;
 }
+
 .btn-icon {
   min-width: 38px;
   min-height: 38px;
@@ -1112,6 +1137,7 @@ html, body {
   justify-content: center;
   font-size: 1rem;
 }
+
 .transpose-controls.compact {
   display: flex;
   align-items: center;
@@ -1132,12 +1158,15 @@ html, body {
   align-items: center;
   justify-content: center;
 }
+
 /* ========== MODO INMERSIVO DE AUTO-SCROLL ========== */
 
 /* Transiciones suaves para los elementos que se ocultan */
-.song-header, .notes-section {
+.song-header,
+.notes-section {
   transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
-  max-height: 300px; /* Altura estimada de seguridad para la animación */
+  max-height: 300px;
+  /* Altura estimada de seguridad para la animación */
   opacity: 1;
   overflow: hidden;
 }
@@ -1151,18 +1180,21 @@ html, body {
   padding-bottom: 0;
   border: none;
   margin: 0;
-  pointer-events: none; /* Evita clics accidentales mientras está oculto */
+  pointer-events: none;
+  /* Evita clics accidentales mientras está oculto */
 }
 
 /* En el header, dejamos exclusivamente visible la barra de controles inferior */
 #song-view.autoscrolling .song-header {
-  padding: 8px 16px 8px 55px; /* Reduce el padding del header al mínimo */
+  padding: 8px 16px 8px 55px;
+  /* Reduce el padding del header al mínimo */
 }
 
 /* Opcional: si quieres que el título de la canción desaparezca por completo y solo quede la barra de controles */
 #song-view.autoscrolling .song-header .song-meta {
   display: none;
 }
+
 /* Ocultar acordes cuando el contenedor tenga la clase hide-chords */
 #chord-display.hide-chords .chords {
   display: none !important;
@@ -1252,6 +1284,41 @@ html, body {
 }
 
 @media (max-width: 700px) {
+  .playlist-view {
+    padding: 16px 16px 40px;
+  }
+
+  .playlist-view-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 0;
+  }
+
+  #playlist-view-title {
+    width: 100%;
+    text-align: center;
+    margin-top: 0;
+  }
+
+  .playlist-view-header #btn-back-playlists {
+    display: none !important;
+  }
+
+  .playlist-view-meta {
+    width: 100%;
+  }
+
+  .playlist-view-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+  }
+
   .shared-playlist-view {
     padding: 18px 14px 74px;
   }
@@ -1276,6 +1343,7 @@ html, body {
     padding: 10px;
     border-bottom: 1px solid var(--border);
   }
+
   .shared-playlist-header {
     display: flex;
     flex-direction: column;
@@ -1283,19 +1351,24 @@ html, body {
     justify-content: center;
     padding-bottom: 0;
   }
+
   .shared-playlist-header h1 {
     margin-bottom: 0;
     font-size: .9rem;
   }
 }
+
 #btn-new-playlist {
   background: var(--accent2);
   border-color: var(--accent2);
   color: #160d14;
 }
-#btn-new-playlist:hover, #btn-new-playlist:active {
+
+#btn-new-playlist:hover,
+#btn-new-playlist:active {
   background: #d978b7;
 }
+
 .hide-chords .chords {
   display: none !important;
 }
