@@ -713,26 +713,81 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ====================== AUTO-SCROLL ======================
   let autoScrollInterval = null;
+  let autoScrollDelayTimer = null;
   let isAutoScrolling = false;
-  const SCROLL_SPEED = 1.2;
+  let autoScrollRemainingDelay = 0;
+
+  const AUTO_SCROLL_DELAY_SEC = 15;
   const SCROLL_INTERVAL = 50;
 
+  // 5 Niveles de Velocidad (Velocidad 4 = 1.2px/50ms, la configuración actual como 2da más rápida)
+  const SPEED_LEVELS = [
+    { level: 1, label: '1x', speed: 0.4, name: '1 (Muy Lenta)' },
+    { level: 2, label: '2x', speed: 0.6, name: '2 (Lenta)' },
+    { level: 3, label: '3x', speed: 0.9, name: '3 (Media)' },
+    { level: 4, label: '4x', speed: 1.2, name: '4 (Rápida)' },
+    { level: 5, label: '5x', speed: 1.6, name: '5 (Muy Rápida)' }
+  ];
+
+  let currentSpeedIndex = parseInt(localStorage.getItem('fastchord_autoscroll_speed') || '3', 10);
+  if (isNaN(currentSpeedIndex) || currentSpeedIndex < 0 || currentSpeedIndex >= SPEED_LEVELS.length) {
+    currentSpeedIndex = 3; // Nivel 4 por defecto (índice 3)
+  }
+
   const btnAutoScroll = document.getElementById('btn-autoscroll');
+  const btnAutoScrollSpeed = document.getElementById('btn-autoscroll-speed');
   const chordDisplay = document.getElementById('chord-display');
   const songView = document.getElementById('song-view');
+
+  function updateSpeedButtonUI() {
+    if (!btnAutoScrollSpeed) return;
+    const currentConfig = SPEED_LEVELS[currentSpeedIndex];
+    btnAutoScrollSpeed.textContent = currentConfig.label;
+    btnAutoScrollSpeed.title = 'Velocidad de scroll: ' + currentConfig.name + ' (Clic para cambiar)';
+  }
+
+  if (btnAutoScrollSpeed) {
+    updateSpeedButtonUI();
+    btnAutoScrollSpeed.addEventListener('click', function () {
+      currentSpeedIndex = (currentSpeedIndex + 1) % SPEED_LEVELS.length;
+      localStorage.setItem('fastchord_autoscroll_speed', currentSpeedIndex);
+      updateSpeedButtonUI();
+    });
+  }
 
   btnAutoScroll.addEventListener('click', function () {
     if (isAutoScrolling) {
       stopAutoScroll();
     } else {
-      startAutoScroll();
+      startAutoScrollWithDelay();
     }
   });
 
-  function startAutoScroll() {
+  function startAutoScrollWithDelay() {
     if (songView.classList.contains('hidden')) return;
 
     isAutoScrolling = true;
+    autoScrollRemainingDelay = AUTO_SCROLL_DELAY_SEC;
+
+    btnAutoScroll.classList.add('active', 'delaying');
+    btnAutoScroll.textContent = '⏱️ ' + autoScrollRemainingDelay + 's';
+    btnAutoScroll.title = 'Auto-scroll iniciará en ' + autoScrollRemainingDelay + 's... (Clic para cancelar)';
+
+    autoScrollDelayTimer = setInterval(function () {
+      autoScrollRemainingDelay--;
+      if (autoScrollRemainingDelay > 0) {
+        btnAutoScroll.textContent = '⏱️ ' + autoScrollRemainingDelay + 's';
+        btnAutoScroll.title = 'Auto-scroll iniciará en ' + autoScrollRemainingDelay + 's... (Clic para cancelar)';
+      } else {
+        clearInterval(autoScrollDelayTimer);
+        autoScrollDelayTimer = null;
+        startScrollingMotion();
+      }
+    }, 1000);
+  }
+
+  function startScrollingMotion() {
+    btnAutoScroll.classList.remove('delaying');
     btnAutoScroll.classList.add('active');
     btnAutoScroll.textContent = '■';
     btnAutoScroll.title = 'Detener Auto-scroll';
@@ -740,28 +795,36 @@ document.addEventListener('DOMContentLoaded', function () {
     // Activa el modo inmersivo ocultando header y notas
     songView.classList.add('autoscrolling');
 
+    const currentSpeed = SPEED_LEVELS[currentSpeedIndex].speed;
+
     autoScrollInterval = setInterval(function () {
       if (chordDisplay.scrollTop + chordDisplay.clientHeight >= chordDisplay.scrollHeight - 5) {
         stopAutoScroll();
         return;
       }
-      chordDisplay.scrollTop += SCROLL_SPEED;
+      chordDisplay.scrollTop += currentSpeed;
     }, SCROLL_INTERVAL);
   }
 
   function stopAutoScroll() {
     isAutoScrolling = false;
-    btnAutoScroll.classList.remove('active');
-    btnAutoScroll.textContent = '▶';
-    btnAutoScroll.title = 'Auto-scroll';
 
-    // Restaura la vista completa mostrando header y notas
-    songView.classList.remove('autoscrolling');
+    if (autoScrollDelayTimer) {
+      clearInterval(autoScrollDelayTimer);
+      autoScrollDelayTimer = null;
+    }
 
     if (autoScrollInterval) {
       clearInterval(autoScrollInterval);
       autoScrollInterval = null;
     }
+
+    btnAutoScroll.classList.remove('active', 'delaying');
+    btnAutoScroll.textContent = '▶';
+    btnAutoScroll.title = 'Auto-scroll (Con 15s de espera)';
+
+    // Restaura la vista completa mostrando header y notas
+    songView.classList.remove('autoscrolling');
   }
 
   window.stopAutoScroll = stopAutoScroll;
@@ -808,6 +871,12 @@ function initSharedPlaylist(token) {
     const display = document.getElementById('shared-chord-display');
     display.innerHTML = ChordPro.render(song.body, 0);
     display.classList.add('hide-chords');
+
+    // Reset de scroll al inicio de la canción
+    display.scrollTop = 0;
+    if (reader) reader.scrollTop = 0;
+    if (view) view.scrollTop = 0;
+    window.scrollTo(0, 0);
 
     document.getElementById('shared-song-position').textContent = (currentIndex + 1) + ' / ' + songs.length;
     document.getElementById('shared-prev').disabled = currentIndex === 0;

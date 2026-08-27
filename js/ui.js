@@ -202,6 +202,9 @@ const UI = (function () {
     }
 
     renderChords(song.body || '', 0);
+    if (els.chordDisplay) els.chordDisplay.scrollTop = 0;
+    if (els.songView) els.songView.scrollTop = 0;
+    window.scrollTo(0, 0);
     if (window.stopAutoScroll) window.stopAutoScroll();
   }
 
