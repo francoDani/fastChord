@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f0f0f">
-    <title>Cancionero Pro</title>
+    <title>FastChord</title>
     <link rel="stylesheet" href="css/styles.css?v=20260824-6">
 </head>
 
@@ -24,13 +24,15 @@
                         <summary title="Acciones editoriales">+</summary>
                         <div id="actions-menu-content" class="actions-menu-content">
                             <button id="btn-new" class="btn btn-primary" title="Nueva canción">Nueva canción</button>
-                            <button id="btn-new-playlist" class="btn btn-primary" title="Nueva playlist">Nueva playlist</button>
+                            <button id="btn-new-playlist" class="btn btn-primary" title="Nueva playlist">Nueva
+                                playlist</button>
                             <button id="btn-export-json" class="btn" title="Exportar JSON">Exportar JSON</button>
                             <button id="btn-import-json" class="btn" title="Importar JSON">Importar JSON</button>
                             <button id="btn-export-txt" class="btn" title="Exportar .txt">Exportar TXT</button>
                             <button id="btn-import-txt" class="btn" title="Importar .txt / OnSong">Importar TXT</button>
                             <input type="file" id="import-json-file" accept=".json" hidden>
-                            <input type="file" id="import-txt-files" accept=".txt,.cho,.crd,.chordpro,.onsong" multiple hidden>
+                            <input type="file" id="import-txt-files" accept=".txt,.cho,.crd,.chordpro,.onsong" multiple
+                                hidden>
                         </div>
                     </details>
                 </div>
@@ -79,8 +81,10 @@
                             <button id="btn-transpose-up" class="btn">+</button>
                         </div>
                         <div class="autoscroll-controls compact">
-                            <button id="btn-autoscroll-speed" class="btn autoscroll-speed-btn" type="button" title="Velocidad de Auto-scroll (1-5)">4x</button>
-                            <button id="btn-autoscroll" class="btn btn-icon" type="button" title="Auto-scroll (Con 15s de espera)">▶</button>
+                            <button id="btn-autoscroll-speed" class="btn autoscroll-speed-btn" type="button"
+                                title="Velocidad de Auto-scroll (1-5)">4x</button>
+                            <button id="btn-autoscroll" class="btn btn-icon" type="button"
+                                title="Auto-scroll (Con 15s de espera)">▶</button>
                         </div>
                         <button id="btn-toggle-chords" class="btn btn-icon" title="Ocultar/Mostrar acordes">🎸</button>
                         <a id="btn-youtube" class="btn btn-icon" target="_blank" rel="noopener" style="display:none;"
@@ -145,7 +149,8 @@
                 <h2 id="playlist-form-title">Nueva playlist</h2>
                 <form id="form-playlist">
                     <div class="playlist-type-selector">
-                        <button type="button" id="btn-type-misa" class="btn-type-tab active">⛪ Cancionero de Misa</button>
+                        <button type="button" id="btn-type-misa" class="btn-type-tab active">⛪ Cancionero de
+                            Misa</button>
                         <button type="button" id="btn-type-custom" class="btn-type-tab">🎵 Cancionero Custom</button>
                     </div>
                     <label>Nombre de la playlist
@@ -156,7 +161,8 @@
                     </div>
                     <div id="playlist-custom-section" class="hidden">
                         <div id="custom-songs-container" class="custom-songs-container"></div>
-                        <button type="button" id="btn-add-custom-song" class="btn btn-secondary btn-add-song">+ Agregar canción</button>
+                        <button type="button" id="btn-add-custom-song" class="btn btn-secondary btn-add-song">+ Agregar
+                            canción</button>
                     </div>
                     <div class="form-actions">
                         <button type="submit" id="btn-save-playlist" class="btn btn-primary">Crear playlist</button>
@@ -173,9 +179,12 @@
                         <p id="playlist-view-description"></p>
                     </div>
                     <div class="playlist-view-actions">
-                        <button id="btn-copy-playlist-link" class="btn btn-icon" type="button" title="Copiar link">🔗</button>
-                        <button id="btn-edit-playlist" class="btn btn-icon hidden" type="button" title="Editar playlist">✏️</button>
-                        <button id="btn-delete-playlist" class="btn btn-danger btn-icon hidden" type="button" title="Eliminar playlist">🗑️</button>
+                        <button id="btn-copy-playlist-link" class="btn btn-icon" type="button"
+                            title="Copiar link">🔗</button>
+                        <button id="btn-edit-playlist" class="btn btn-icon hidden" type="button"
+                            title="Editar playlist">✏️</button>
+                        <button id="btn-delete-playlist" class="btn btn-danger btn-icon hidden" type="button"
+                            title="Eliminar playlist">🗑️</button>
                     </div>
                 </div>
                 <ol id="playlist-song-list" class="playlist-song-list"></ol>
