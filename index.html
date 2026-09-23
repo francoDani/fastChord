@@ -142,7 +142,13 @@
                         <input type="url" id="form-youtube" placeholder="https://youtube.com/...">
                     </label>
                     <label>Letra + Acordes (formato ChordPro / OnSong)
-                        <textarea id="form-body" rows="18" placeholder="[C]Hola [G]mundo"></textarea>
+                        <div class="editor-block-toolbar">
+                            <button type="button" class="btn-block-insert" data-block="Estrofa">+ Estrofa</button>
+                            <button type="button" class="btn-block-insert" data-block="Coro">+ Coro</button>
+                            <button type="button" class="btn-block-insert" data-block="Puente">+ Puente</button>
+                            <button type="button" class="btn-block-insert" data-block="Intro">+ Intro</button>
+                        </div>
+                        <textarea id="form-body" rows="18" placeholder="{c: Estrofa 1}&#10;[C]Hola [G]mundo&#10;&#10;{c: Coro}&#10;[F]Ejemplo de [G]letra"></textarea>
                     </label>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Guardar</button>
@@ -228,8 +234,8 @@
     <script src="js/playlists.js?v=20260824-4"></script>
     <script src="js/storage.js?v=20260823"></script>
     <script src="js/chordpro.js?v=20260905"></script>
-    <script src="js/ui.js?v=20260824-3"></script>
-    <script src="js/app.js?v=20260922"></script>
+    <script src="js/ui.js?v=20260922"></script>
+    <script src="js/app.js?v=20260922-2"></script>
 </body>
 
 </html>

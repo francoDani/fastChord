@@ -659,6 +659,38 @@ body {
   cursor: pointer;
 }
 
+/* ========== BLOCK INSERTION TOOLBAR IN SONG FORM ========== */
+.editor-block-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  margin-bottom: 8px;
+}
+
+.btn-block-insert {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn-block-insert:hover {
+  background: rgba(80, 150, 255, 0.18);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn-block-insert:active {
+  transform: scale(0.96);
+}
+
 .playlist-multi-dropdown {
   position: relative;
   margin-top: 5px;

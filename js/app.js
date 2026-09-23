@@ -482,6 +482,16 @@ document.addEventListener('DOMContentLoaded', function () {
     UI.refreshList(els.searchInput.value, this.value);
   });
 
+  // Inserción rápida de bloques en el editor
+  document.querySelectorAll('.btn-block-insert').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const blockType = this.dataset.block;
+      if (blockType) {
+        UI.insertSectionBlock(blockType);
+      }
+    });
+  });
+
   // Nueva canción
   document.getElementById('btn-new').addEventListener('click', function () {
     UI.openForm();

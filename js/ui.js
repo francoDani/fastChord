@@ -318,12 +318,61 @@ const UI = (function () {
 
     document.getElementById('btn-save-notes').addEventListener('click', saveNotes);
 
+  function insertSectionBlock(blockType) {
+    const textarea = els.formBody;
+    if (!textarea) return;
+
+    let tag = '';
+    if (blockType === 'Estrofa') {
+      const val = textarea.value || '';
+      const matches = val.match(/(?:Estrofa|Verso|Verse)\s+(\d+)/gi) || [];
+      let maxNum = 0;
+      matches.forEach(function (m) {
+        const num = parseInt(m.replace(/\D/g, ''), 10);
+        if (num > maxNum) maxNum = num;
+      });
+      const nextNum = maxNum + 1;
+      tag = '{c: Estrofa ' + nextNum + '}';
+    } else {
+      tag = '{c: ' + blockType + '}';
+    }
+
+    const startPos = textarea.selectionStart || 0;
+    const endPos = textarea.selectionEnd || 0;
+    const text = textarea.value || '';
+
+    let prefix = '';
+    if (startPos > 0) {
+      if (text.slice(0, startPos).endsWith('\n\n')) {
+        prefix = '';
+      } else if (text.slice(0, startPos).endsWith('\n')) {
+        prefix = '\n';
+      } else {
+        prefix = '\n\n';
+      }
+    }
+
+    let suffix = '\n';
+    if (endPos < text.length && !text.slice(endPos).startsWith('\n')) {
+      suffix = '\n';
+    }
+
+    const insertion = prefix + tag + suffix;
+    textarea.value = text.slice(0, startPos) + insertion + text.slice(endPos);
+
+    const newCursorPos = startPos + insertion.length;
+    textarea.selectionStart = newCursorPos;
+    textarea.selectionEnd = newCursorPos;
+    textarea.focus();
+  }
+
   return {
     refreshList: refreshList,
     selectSong: selectSong,
     openForm: openForm,
     showView: showView,
     renderChords: renderChords,
+    insertSectionBlock: insertSectionBlock,
     getCurrentSongId: function () { return currentSongId; },
     getCurrentTranspose: function () { return currentTranspose; },
     setTranspose: function (val) {
