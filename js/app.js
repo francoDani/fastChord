@@ -74,9 +74,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  let currentPlaylistSongs = null;
+  let currentPlaylistSongIndex = -1;
+
+  const navPlaylistSong = document.getElementById('playlist-song-navigation');
+  const btnPlaylistPrev = document.getElementById('playlist-prev');
+  const btnPlaylistNext = document.getElementById('playlist-next');
+  const txtPlaylistPosition = document.getElementById('playlist-song-position');
+
   function openPlaylist(playlist) {
     currentPlaylist = playlist;
     editingPlaylist = null;
+    resetPlaylistNavigation();
     const songs = (playlist.playlist_songs || []).slice().sort(function (a, b) {
       return a.position - b.position;
     }).map(function (item) { return item.songs; }).filter(Boolean);
@@ -85,13 +94,13 @@ document.addEventListener('DOMContentLoaded', function () {
     setPlaylistEditorActions(Auth.canEdit());
     const list = document.getElementById('playlist-song-list');
     list.innerHTML = '';
-    songs.forEach(function (song) {
+    songs.forEach(function (song, songIndex) {
       const item = document.createElement('li');
       const button = document.createElement('button');
       button.className = 'playlist-song-button';
       button.textContent = song.title;
       button.addEventListener('click', function () {
-        UI.selectSong(song.id);
+        openPlaylistSong(playlist, songIndex);
         document.getElementById('sidebar').classList.add('collapsed');
       });
       item.appendChild(button);
@@ -99,6 +108,57 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     UI.showView('playlist-view');
     document.getElementById('sidebar').classList.add('collapsed');
+  }
+
+  function openPlaylistSong(playlist, songIndex) {
+    currentPlaylist = playlist;
+    const songs = (playlist.playlist_songs || []).slice().sort(function (a, b) {
+      return a.position - b.position;
+    }).map(function (item) { return item.songs; }).filter(Boolean);
+
+    if (!songs || songs.length === 0 || songIndex < 0 || songIndex >= songs.length) return;
+
+    currentPlaylistSongs = songs;
+    currentPlaylistSongIndex = songIndex;
+
+    const targetSong = songs[songIndex];
+    UI.selectSong(targetSong.id);
+
+    updatePlaylistNavigationUI();
+  }
+
+  function updatePlaylistNavigationUI() {
+    if (!navPlaylistSong) return;
+    if (!currentPlaylistSongs || currentPlaylistSongs.length === 0 || currentPlaylistSongIndex < 0) {
+      navPlaylistSong.classList.add('hidden');
+      return;
+    }
+    navPlaylistSong.classList.remove('hidden');
+    txtPlaylistPosition.textContent = (currentPlaylistSongIndex + 1) + ' / ' + currentPlaylistSongs.length;
+    btnPlaylistPrev.disabled = (currentPlaylistSongIndex === 0);
+    btnPlaylistNext.disabled = (currentPlaylistSongIndex === currentPlaylistSongs.length - 1);
+  }
+
+  function resetPlaylistNavigation() {
+    currentPlaylistSongs = null;
+    currentPlaylistSongIndex = -1;
+    if (navPlaylistSong) navPlaylistSong.classList.add('hidden');
+  }
+
+  if (btnPlaylistPrev) {
+    btnPlaylistPrev.addEventListener('click', function () {
+      if (currentPlaylistSongs && currentPlaylistSongIndex > 0) {
+        openPlaylistSong(currentPlaylist, currentPlaylistSongIndex - 1);
+      }
+    });
+  }
+
+  if (btnPlaylistNext) {
+    btnPlaylistNext.addEventListener('click', function () {
+      if (currentPlaylistSongs && currentPlaylistSongIndex < currentPlaylistSongs.length - 1) {
+        openPlaylistSong(currentPlaylist, currentPlaylistSongIndex + 1);
+      }
+    });
   }
 
   function selectionsFromPlaylist(playlist) {
@@ -466,6 +526,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(function () {
         currentPlaylist = null;
         editingPlaylist = null;
+        resetPlaylistNavigation();
         setPlaylistEditorActions(false);
         UI.showView('empty');
         return loadPlaylists(true);
@@ -478,6 +539,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.getElementById('btn-back-playlists').addEventListener('click', function () {
     currentPlaylist = null;
+    resetPlaylistNavigation();
     UI.showView('empty');
   });
 
@@ -700,7 +762,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  document.getElementById('song-list').addEventListener('click', function () {
+  document.getElementById('song-list').addEventListener('click', function (event) {
+    let target = event.target;
+    while (target && target !== this && target.tagName !== 'LI') {
+      target = target.parentNode;
+    }
+    if (target && target.tagName === 'LI') {
+      resetPlaylistNavigation();
+    }
     sidebar.classList.add('collapsed');
     btnToggle.textContent = '☰';
     btnToggle.title = 'Mostrar lista';

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f0f0f">
     <title>FastChord</title>
-    <link rel="stylesheet" href="css/styles.css?v=20260824-6">
+    <link rel="stylesheet" href="css/styles.css?v=20260922">
 </head>
 
 <body>
@@ -101,6 +101,12 @@
                     </div>
                     <textarea id="song-notes" placeholder="Anotaciones..."></textarea>
                 </section>
+
+                <nav id="playlist-song-navigation" class="playlist-song-navigation hidden">
+                    <button id="playlist-prev" class="btn" type="button">Anterior</button>
+                    <span id="playlist-song-position"></span>
+                    <button id="playlist-next" class="btn" type="button">Siguiente</button>
+                </nav>
             </div>
 
             <!-- Formulario -->
@@ -223,7 +229,7 @@
     <script src="js/storage.js?v=20260823"></script>
     <script src="js/chordpro.js?v=20260905"></script>
     <script src="js/ui.js?v=20260824-3"></script>
-    <script src="js/app.js?v=20260824-10"></script>
+    <script src="js/app.js?v=20260922"></script>
 </body>
 
 </html>

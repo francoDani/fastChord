@@ -389,21 +389,34 @@ body {
   text-align: left;
 }
 
-.shared-song-navigation {
+.shared-song-navigation,
+.playlist-song-navigation {
   position: absolute;
   left: 50%;
-  bottom: 14px;
+  bottom: 140px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  width: min(100% - 56px, 460px);
+  width: min(100% - 56px, 350px);
+  z-index: 150;
+  background: var(--bg-sidebar);
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-.shared-song-navigation span {
+.shared-song-navigation span,
+.playlist-song-navigation span {
   color: var(--text-muted);
   font-size: 0.85rem;
+  font-weight: 600;
+}
+
+#song-view.autoscrolling .playlist-song-navigation {
+  display: none !important;
 }
 
 .playlist-form {
@@ -939,7 +952,7 @@ body {
   flex: 1 1 auto;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 16px 24px 40px;
+  padding: 16px 24px 75px;
   -webkit-overflow-scrolling: touch;
 }
 
