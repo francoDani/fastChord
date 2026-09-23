@@ -366,6 +366,77 @@ const UI = (function () {
     textarea.focus();
   }
 
+  function insertQuickChord(chordName) {
+    const textarea = els.formBody;
+    if (!textarea) return;
+
+    const startPos = textarea.selectionStart || 0;
+    const endPos = textarea.selectionEnd || 0;
+    const text = textarea.value || '';
+    const selected = text.slice(startPos, endPos);
+
+    let insertion = '';
+    let cursorOffset = 0;
+
+    if (!chordName) {
+      if (selected) {
+        insertion = '[' + selected + ']';
+        cursorOffset = insertion.length;
+      } else {
+        insertion = '[]';
+        cursorOffset = 1;
+      }
+    } else {
+      insertion = '[' + chordName + ']';
+      cursorOffset = insertion.length;
+    }
+
+    textarea.value = text.slice(0, startPos) + insertion + text.slice(endPos);
+    const newPos = startPos + cursorOffset;
+    textarea.selectionStart = newPos;
+    textarea.selectionEnd = newPos;
+    textarea.focus();
+  }
+
+  function formatSelectedText(formatType) {
+    const textarea = els.formBody;
+    if (!textarea) return;
+
+    const startPos = textarea.selectionStart || 0;
+    const endPos = textarea.selectionEnd || 0;
+    const text = textarea.value || '';
+    const selected = text.slice(startPos, endPos);
+
+    let openTag = '<b>';
+    let closeTag = '</b>';
+    if (formatType === 'i') {
+      openTag = '<i>';
+      closeTag = '</i>';
+    } else if (formatType === 'u') {
+      openTag = '<u>';
+      closeTag = '</u>';
+    }
+
+    let insertion = '';
+    let selectionStart = 0;
+    let selectionEnd = 0;
+
+    if (selected) {
+      insertion = openTag + selected + closeTag;
+      selectionStart = startPos + insertion.length;
+      selectionEnd = selectionStart;
+    } else {
+      insertion = openTag + closeTag;
+      selectionStart = startPos + openTag.length;
+      selectionEnd = selectionStart;
+    }
+
+    textarea.value = text.slice(0, startPos) + insertion + text.slice(endPos);
+    textarea.selectionStart = selectionStart;
+    textarea.selectionEnd = selectionEnd;
+    textarea.focus();
+  }
+
   return {
     refreshList: refreshList,
     selectSong: selectSong,
@@ -373,6 +444,8 @@ const UI = (function () {
     showView: showView,
     renderChords: renderChords,
     insertSectionBlock: insertSectionBlock,
+    insertQuickChord: insertQuickChord,
+    formatSelectedText: formatSelectedText,
     getCurrentSongId: function () { return currentSongId; },
     getCurrentTranspose: function () { return currentTranspose; },
     setTranspose: function (val) {

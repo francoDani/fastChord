@@ -52,6 +52,19 @@ const ChordPro = (function () {
       .replace(/"/g, '&quot;');
   }
 
+  function renderFormattedLyrics(text) {
+    let escaped = escapeHtml(text);
+    // Convertir etiquetas HTML seguras (bold, italic, underline)
+    escaped = escaped.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<b>$1</b>');
+    escaped = escaped.replace(/&lt;i&gt;(.*?)&lt;\/i&gt;/gi, '<i>$1</i>');
+    escaped = escaped.replace(/&lt;u&gt;(.*?)&lt;\/u&gt;/gi, '<u>$1</u>');
+    // Convertir síntaxis Markdown básica
+    escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    escaped = escaped.replace(/\*(.*?)\*/g, '<i>$1</i>');
+    escaped = escaped.replace(/_(.*?)_/g, '<u>$1</u>');
+    return escaped;
+  }
+
   const SECTION_KEYWORDS_REGEX = /^(Estrofa|Verso|Verse|Chorus|Coro|Bridge|Puente|Intro|Outro|Solo|Pre-Chorus|Pre-Coro|Prechorus|Precoro|Interlude|Interludio|Tag|Ending|Final|Instrumental|Coda|Refrain)(\s+.*)?$/i;
 
   function isSectionHeaderLine(line) {
@@ -146,7 +159,7 @@ const ChordPro = (function () {
       cleaned += rawLine.slice(lastIndex);
 
       if (chords.length === 0) {
-        html += '<div class="chord-line"><div class="lyrics">' + escapeHtml(cleaned) + '</div></div>';
+        html += '<div class="chord-line"><div class="lyrics">' + renderFormattedLyrics(cleaned) + '</div></div>';
         continue;
       }
 
@@ -160,7 +173,7 @@ const ChordPro = (function () {
       });
 
       const lyricsHtml = cleaned.trim()
-        ? '<div class="lyrics">' + escapeHtml(cleaned) + '</div>'
+        ? '<div class="lyrics">' + renderFormattedLyrics(cleaned) + '</div>'
         : getFollowingLyrics(lines, lineIndex);
 
       if (!cleaned.trim() && lyricsHtml) lineIndex++;
@@ -180,7 +193,7 @@ const ChordPro = (function () {
     if (isSectionHeaderLine(nextLine)) return '';
     const nextTrimmed = nextLine.trim();
     if (!nextTrimmed || /\[[^\]]+\]/.test(nextLine)) return '';
-    return '<div class="lyrics">' + escapeHtml(nextLine) + '</div>';
+    return '<div class="lyrics">' + renderFormattedLyrics(nextLine) + '</div>';
   }
 
   return {

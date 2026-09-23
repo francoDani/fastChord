@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f0f0f">
     <title>FastChord</title>
-    <link rel="stylesheet" href="css/styles.css?v=20260922">
+    <link rel="stylesheet" href="css/styles.css?v=20260922-2">
 </head>
 
 <body>
@@ -143,10 +143,107 @@
                     </label>
                     <label>Letra + Acordes (formato ChordPro / OnSong)
                         <div class="editor-block-toolbar">
-                            <button type="button" class="btn-block-insert" data-block="Estrofa">+ Estrofa</button>
-                            <button type="button" class="btn-block-insert" data-block="Coro">+ Coro</button>
-                            <button type="button" class="btn-block-insert" data-block="Puente">+ Puente</button>
-                            <button type="button" class="btn-block-insert" data-block="Intro">+ Intro</button>
+                            <div class="editor-toolbar-group">
+                                <button type="button" class="btn-format" data-format="b" title="Negrita"><b>B</b></button>
+                                <button type="button" class="btn-format" data-format="i" title="Cursiva"><i>I</i></button>
+                                <button type="button" class="btn-format" data-format="u" title="Subrayado"><u>U</u></button>
+                            </div>
+                            <div class="editor-toolbar-group">
+                                <button type="button" class="btn-block-insert" data-block="Estrofa">+ Estrofa</button>
+                                <button type="button" class="btn-block-insert" data-block="Coro">+ Coro</button>
+                                <button type="button" class="btn-block-insert" data-block="Puente">+ Puente</button>
+                                <button type="button" class="btn-block-insert" data-block="Intro">+ Intro</button>
+                            </div>
+                            <div class="editor-toolbar-group editor-chords-group">
+                                <button type="button" class="btn-chord-quick btn-chord-custom" data-chord="" title="Insertar corchete de acorde">+ [ ]</button>
+                                
+                                <div class="chord-dropdown">
+                                    <button type="button" class="btn-chord-trigger">C ▾</button>
+                                    <div class="chord-variations-menu">
+                                        <button type="button" class="btn-chord-opt" data-chord="C">C (Mayor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Cm">Cm (Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="C7">C7 (7ma)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Cmaj7">Cmaj7</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="C#">C# (Sostenido)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="C#m">C#m (Sost. Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Db">Db (Bemol)</button>
+                                    </div>
+                                </div>
+
+                                <div class="chord-dropdown">
+                                    <button type="button" class="btn-chord-trigger">D ▾</button>
+                                    <div class="chord-variations-menu">
+                                        <button type="button" class="btn-chord-opt" data-chord="D">D (Mayor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Dm">Dm (Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="D7">D7 (7ma)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Dmaj7">Dmaj7</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="D#">D# (Sostenido)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="D#m">D#m (Sost. Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Eb">Eb (Bemol)</button>
+                                    </div>
+                                </div>
+
+                                <div class="chord-dropdown">
+                                    <button type="button" class="btn-chord-trigger">E ▾</button>
+                                    <div class="chord-variations-menu">
+                                        <button type="button" class="btn-chord-opt" data-chord="E">E (Mayor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Em">Em (Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="E7">E7 (7ma)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Emaj7">Emaj7</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Eb">Eb (Bemol)</button>
+                                    </div>
+                                </div>
+
+                                <div class="chord-dropdown">
+                                    <button type="button" class="btn-chord-trigger">F ▾</button>
+                                    <div class="chord-variations-menu">
+                                        <button type="button" class="btn-chord-opt" data-chord="F">F (Mayor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Fm">Fm (Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="F7">F7 (7ma)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Fmaj7">Fmaj7</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="F#">F# (Sostenido)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="F#m">F#m (Sost. Menor)</button>
+                                    </div>
+                                </div>
+
+                                <div class="chord-dropdown">
+                                    <button type="button" class="btn-chord-trigger">G ▾</button>
+                                    <div class="chord-variations-menu">
+                                        <button type="button" class="btn-chord-opt" data-chord="G">G (Mayor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Gm">Gm (Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="G7">G7 (7ma)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Gmaj7">Gmaj7</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="G#">G# (Sostenido)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="G#m">G#m (Sost. Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Ab">Ab (Bemol)</button>
+                                    </div>
+                                </div>
+
+                                <div class="chord-dropdown">
+                                    <button type="button" class="btn-chord-trigger">A ▾</button>
+                                    <div class="chord-variations-menu">
+                                        <button type="button" class="btn-chord-opt" data-chord="A">A (Mayor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Am">Am (Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="A7">A7 (7ma)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Amaj7">Amaj7</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="A#">A# (Sostenido)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="A#m">A#m (Sost. Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Bb">Bb (Bemol)</button>
+                                    </div>
+                                </div>
+
+                                <div class="chord-dropdown">
+                                    <button type="button" class="btn-chord-trigger">B ▾</button>
+                                    <div class="chord-variations-menu">
+                                        <button type="button" class="btn-chord-opt" data-chord="B">B (Mayor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Bm">Bm (Menor)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="B7">B7 (7ma)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Bmaj7">Bmaj7</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Bb">Bb (Bemol)</button>
+                                        <button type="button" class="btn-chord-opt" data-chord="Bbm">Bbm (Bemol Menor)</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <textarea id="form-body" rows="18" placeholder="{c: Estrofa 1}&#10;[C]Hola [G]mundo&#10;&#10;{c: Coro}&#10;[F]Ejemplo de [G]letra"></textarea>
                     </label>
@@ -233,9 +330,9 @@
     <script src="js/migrate-songs.js?v=20260823"></script>
     <script src="js/playlists.js?v=20260824-4"></script>
     <script src="js/storage.js?v=20260823"></script>
-    <script src="js/chordpro.js?v=20260905"></script>
-    <script src="js/ui.js?v=20260922"></script>
-    <script src="js/app.js?v=20260922-2"></script>
+    <script src="js/chordpro.js?v=20260922-2"></script>
+    <script src="js/ui.js?v=20260922-2"></script>
+    <script src="js/app.js?v=20260922-4"></script>
 </body>
 
 </html>

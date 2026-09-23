@@ -663,32 +663,159 @@ body {
 .editor-block-toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
   margin-top: 6px;
   margin-bottom: 8px;
 }
 
-.btn-block-insert {
+.editor-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   background: var(--bg-card);
+  padding: 3px 5px;
   border: 1px solid var(--border);
-  color: var(--accent);
-  padding: 5px 12px;
   border-radius: var(--radius);
+}
+
+.btn-format,
+.btn-block-insert,
+.btn-chord-quick {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--accent);
+  padding: 4px 9px;
+  border-radius: calc(var(--radius) - 2px);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
+  line-height: 1.2;
 }
 
-.btn-block-insert:hover {
+.btn-format {
+  min-width: 28px;
+  text-align: center;
+  color: var(--text);
+  font-family: inherit;
+}
+
+.btn-format:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border);
+  color: #fff;
+}
+
+.btn-block-insert:hover,
+.btn-chord-quick:hover {
   background: rgba(80, 150, 255, 0.18);
   border-color: var(--accent);
   color: #fff;
 }
 
-.btn-block-insert:active {
-  transform: scale(0.96);
+.chord-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-chord-trigger {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--accent);
+  padding: 4px 8px;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  line-height: 1.2;
+}
+
+.btn-chord-trigger:hover,
+.chord-dropdown.open .btn-chord-trigger {
+  background: rgba(80, 150, 255, 0.2);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.chord-variations-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 250;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  min-width: 130px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.chord-dropdown.open .chord-variations-menu {
+  display: flex;
+}
+
+.btn-chord-opt {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  border-radius: calc(var(--radius) - 2px);
+  transition: background 0.12s ease;
+}
+
+.btn-chord-opt:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-chord-custom {
+  color: var(--accent2);
+}
+
+.btn-chord-custom:hover {
+  background: rgba(230, 126, 34, 0.2);
+  border-color: var(--accent2);
+  color: #fff;
+}
+
+@media (max-width: 700px) {
+  .editor-chords-group {
+    display: none !important;
+  }
+}
+
+.btn-format:active,
+.btn-block-insert:active,
+.btn-chord-quick:active {
+  transform: scale(0.95);
+}
+
+.chord-line .lyrics b,
+.chord-line .lyrics strong {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.chord-line .lyrics i,
+.chord-line .lyrics em {
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.chord-line .lyrics u {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .playlist-multi-dropdown {

@@ -492,6 +492,56 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // Formato de texto en el editor (Negrita, Cursiva, Subrayado)
+  document.querySelectorAll('.btn-format').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const formatType = this.dataset.format;
+      if (formatType) {
+        UI.formatSelectedText(formatType);
+      }
+    });
+  });
+
+  // Acordes rápidos y desplegables de variaciones (C a B)
+  document.querySelectorAll('.btn-chord-quick').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const chord = this.dataset.chord;
+      UI.insertQuickChord(chord);
+    });
+  });
+
+  document.querySelectorAll('.btn-chord-trigger').forEach(function (trigger) {
+    trigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const parent = this.closest('.chord-dropdown');
+      const isOpen = parent.classList.contains('open');
+
+      document.querySelectorAll('.chord-dropdown.open').forEach(function (dd) {
+        dd.classList.remove('open');
+      });
+
+      if (!isOpen) {
+        parent.classList.add('open');
+      }
+    });
+  });
+
+  document.querySelectorAll('.btn-chord-opt').forEach(function (opt) {
+    opt.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const chord = this.dataset.chord;
+      UI.insertQuickChord(chord);
+      const parent = this.closest('.chord-dropdown');
+      if (parent) parent.classList.remove('open');
+    });
+  });
+
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.chord-dropdown.open').forEach(function (dd) {
+      dd.classList.remove('open');
+    });
+  });
+
   // Nueva canción
   document.getElementById('btn-new').addEventListener('click', function () {
     UI.openForm();
