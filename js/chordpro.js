@@ -52,6 +52,22 @@ const ChordPro = (function () {
       .replace(/"/g, '&quot;');
   }
 
+  const SECTION_KEYWORDS_REGEX = /^(Estrofa|Verso|Verse|Chorus|Coro|Bridge|Puente|Intro|Outro|Solo|Pre-Chorus|Pre-Coro|Prechorus|Precoro|Interlude|Interludio|Tag|Ending|Final|Instrumental|Coda|Refrain)(\s+.*)?$/i;
+
+  function isSectionHeaderLine(line) {
+    if (!line) return false;
+    const trimmed = line.trim();
+    if (!trimmed) return false;
+    if (trimmed.indexOf('§SECTION§') === 0) return true;
+    if (/^\{(?:comment|c|comment_italic|ci|comment_box|cb|subtitle|st)\s*:/i.test(trimmed)) return true;
+    if (/^\{(?:start_of_chorus|soc|end_of_chorus|eoc|start_of_verse|sov|end_of_verse|eov)\}\s*$/i.test(trimmed)) return true;
+    if (/^\{(?:title|t|artist|category|key|tempo|time|capo|youtube)\s*:/i.test(trimmed)) return true;
+    if (SECTION_KEYWORDS_REGEX.test(trimmed)) return true;
+    const bracketMatch = trimmed.match(/^\[([^\]]+)\]$/);
+    if (bracketMatch && SECTION_KEYWORDS_REGEX.test(bracketMatch[1].trim())) return true;
+    return false;
+  }
+
   function render(text, transpose) {
     transpose = transpose || 0;
     if (!text) return '';
@@ -63,6 +79,10 @@ const ChordPro = (function () {
       const rawLine = lines[lineIndex];
       const line = rawLine.trim();
 
+      if (!line) {
+        continue;
+      }
+
       // Encabezado de sección
       if (line.indexOf('§SECTION§') === 0) {
         const sectionName = line.replace('§SECTION§', '').trim();
@@ -70,10 +90,41 @@ const ChordPro = (function () {
         continue;
       }
 
-      // Compatibilidad con el formato anterior {comment: Verse 1}
-      const commentMatch = line.match(/^\{comment\s*:\s*(.+?)\}\s*$/i);
+      // Directivas {comment: ...}, {c: ...}, {subtitle: ...}, {st: ...}, etc.
+      const commentMatch = line.match(/^\{(?:comment|c|comment_italic|ci|comment_box|cb|subtitle|st)\s*:\s*(.+?)\}\s*$/i);
       if (commentMatch) {
         html += '<div class="section-header">' + escapeHtml(commentMatch[1].trim()) + '</div>';
+        continue;
+      }
+
+      // Directivas de bloque {soc}, {start_of_chorus}, {sov}, {start_of_verse}
+      if (/^\{(?:start_of_chorus|soc)\}\s*$/i.test(line)) {
+        html += '<div class="section-header">CORO</div>';
+        continue;
+      }
+      if (/^\{(?:end_of_chorus|eoc|end_of_verse|eov)\}\s*$/i.test(line)) {
+        continue;
+      }
+      if (/^\{(?:start_of_verse|sov)\}\s*$/i.test(line)) {
+        html += '<div class="section-header">ESTROFA</div>';
+        continue;
+      }
+
+      // Ignorar directivas de metadatos en el cuerpo si las hay
+      if (/^\{(?:title|t|artist|category|key|tempo|time|capo|youtube)\s*:/i.test(line)) {
+        continue;
+      }
+
+      // Encabezados entre corchetes como [Estrofa 1], [Coro], [Verse 2], [Puente]
+      const bracketSectionMatch = line.match(/^\[([^\]]+)\]$/);
+      if (bracketSectionMatch && SECTION_KEYWORDS_REGEX.test(bracketSectionMatch[1].trim())) {
+        html += '<div class="section-header">' + escapeHtml(bracketSectionMatch[1].trim()) + '</div>';
+        continue;
+      }
+
+      // Nombre de sección en texto plano como "Estrofa 1", "Coro", "Verse 2", "Puente"
+      if (SECTION_KEYWORDS_REGEX.test(line)) {
+        html += '<div class="section-header">' + escapeHtml(line) + '</div>';
         continue;
       }
 
@@ -125,10 +176,10 @@ const ChordPro = (function () {
 
   function getFollowingLyrics(lines, lineIndex) {
     const nextLine = lines[lineIndex + 1];
-    const nextTrimmed = nextLine ? nextLine.trim() : '';
-    if (!nextTrimmed || /\[[^\]]+\]/.test(nextLine) ||
-      nextTrimmed.indexOf('§SECTION§') === 0 ||
-      /^\{comment\s*:/i.test(nextTrimmed)) return '';
+    if (!nextLine) return '';
+    if (isSectionHeaderLine(nextLine)) return '';
+    const nextTrimmed = nextLine.trim();
+    if (!nextTrimmed || /\[[^\]]+\]/.test(nextLine)) return '';
     return '<div class="lyrics">' + escapeHtml(nextLine) + '</div>';
   }
 
