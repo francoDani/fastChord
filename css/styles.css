@@ -1040,6 +1040,68 @@ body {
   align-items: center;
 }
 
+/* Estilo base del botón */
+.btn-toggle-view {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* --- MODO PANTALLA COMPLETA / SOLO ACORDES --- */
+/* Ocultar sidebar, botón de menú de sidebar, notas, paginador y otros controles */
+body.focus-mode #sidebar,
+body.focus-mode #btn-toggle-sidebar,
+body.focus-mode .song-meta,
+body.focus-mode .notes-section,
+body.focus-mode #playlist-song-navigation,
+body.focus-mode .song-controls > *:not(#btn-toggle-fullscreen) {
+  display: none !important;
+}
+
+/* Reducir el song-header a 0 para que no reste espacio al visor de acordes */
+body.focus-mode .song-header {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+
+body.focus-mode .song-controls {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* El botón permanece siempre visible flotando en la esquina superior derecha */
+body.focus-mode #btn-toggle-fullscreen {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 9999;
+  background-color: rgba(22, 22, 22, 0.85);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  min-width: 42px;
+  min-height: 42px;
+  font-size: 1.1rem;
+}
+
+body.focus-mode #btn-toggle-fullscreen:hover {
+  background-color: var(--accent);
+  color: #0f0f0f;
+}
+
+/* El visor de acordes aprovecha el 100% de la pantalla */
+body.focus-mode .chord-display {
+  height: 100vh;
+  max-height: 100vh;
+  padding: 24px 28px 40px;
+  box-sizing: border-box;
+}
+
 .transpose-controls {
   display: flex;
   align-items: center;

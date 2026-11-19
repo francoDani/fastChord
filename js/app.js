@@ -974,6 +974,40 @@ if (btnToggleChords) {
   });
 }
 
+// ====================== TOGGLE PANTALLA COMPLETA (SOLO ACORDES) ======================
+const btnToggleFullscreen = document.getElementById('btn-toggle-fullscreen');
+
+if (btnToggleFullscreen) {
+  function setFocusMode(enable) {
+    const isFocus = enable !== undefined ? enable : !document.body.classList.contains('focus-mode');
+    document.body.classList.toggle('focus-mode', isFocus);
+    btnToggleFullscreen.classList.toggle('active', isFocus);
+
+    const icon = btnToggleFullscreen.querySelector('.icon');
+    if (isFocus) {
+      if (icon) icon.textContent = '✖';
+      else btnToggleFullscreen.textContent = '✖';
+      btnToggleFullscreen.title = 'Salir de pantalla completa (Esc)';
+    } else {
+      if (icon) icon.textContent = '⛶';
+      else btnToggleFullscreen.textContent = '⛶';
+      btnToggleFullscreen.title = 'Modo pantalla completa (Solo acordes)';
+    }
+  }
+
+  btnToggleFullscreen.addEventListener('click', function () {
+    setFocusMode();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.body.classList.contains('focus-mode')) {
+      setFocusMode(false);
+    }
+  });
+
+  window.setFocusMode = setFocusMode;
+}
+
 function initSharedPlaylist(token) {
   document.getElementById('sidebar').classList.add('hidden');
   document.getElementById('btn-toggle-sidebar').classList.add('hidden');

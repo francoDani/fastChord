@@ -213,6 +213,10 @@ const UI = (function () {
   }
 
   function showView(mode) {
+    if (mode !== 'view' && window.setFocusMode) {
+      window.setFocusMode(false);
+    }
+
     els.emptyState.classList.add('hidden');
     els.songView.classList.add('hidden');
     els.songForm.classList.add('hidden');
