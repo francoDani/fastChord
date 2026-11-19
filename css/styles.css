@@ -389,30 +389,86 @@ body {
   text-align: left;
 }
 
-.shared-song-navigation,
 .playlist-song-navigation {
-  position: absolute;
-  left: 50%;
-  bottom: 0px;
-  transform: translateX(-50%);
-  display: flex;
+  position: relative;
+  flex-shrink: 0;
+  align-self: center;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  width: min(100% - 56px, 350px);
-  z-index: 150;
-  background: var(--bg-sidebar);
-  padding: 8px 16px;
+  gap: 6px;
+  margin: 6px auto;
+  padding: 3px 10px;
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 30px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  z-index: 10;
+  width: fit-content;
+}
+
+.shared-song-navigation {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  z-index: 150;
+  width: fit-content;
 }
 
 .shared-song-navigation span,
 .playlist-song-navigation span {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
+  padding: 0 6px;
+  min-width: 44px;
+  text-align: center;
+  user-select: none;
+}
+
+.playlist-song-navigation .btn,
+.shared-song-navigation .btn {
+  min-width: 26px;
+  min-height: 26px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.playlist-song-navigation .btn:hover:not(:disabled),
+.shared-song-navigation .btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: #0f0f0f;
+  border-color: var(--accent);
+}
+
+.playlist-song-navigation .btn:disabled,
+.shared-song-navigation .btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 #song-view.autoscrolling .playlist-song-navigation {
@@ -1047,12 +1103,11 @@ body {
 }
 
 /* --- MODO PANTALLA COMPLETA / SOLO ACORDES --- */
-/* Ocultar sidebar, botón de menú de sidebar, notas, paginador y otros controles */
+/* Ocultar sidebar, botón de menú de sidebar, notas y controles secundarios */
 body.focus-mode #sidebar,
 body.focus-mode #btn-toggle-sidebar,
 body.focus-mode .song-meta,
 body.focus-mode .notes-section,
-body.focus-mode #playlist-song-navigation,
 body.focus-mode .song-controls > *:not(#btn-toggle-fullscreen) {
   display: none !important;
 }
@@ -1094,10 +1149,12 @@ body.focus-mode #btn-toggle-fullscreen:hover {
   color: #0f0f0f;
 }
 
-/* El visor de acordes aprovecha el 100% de la pantalla */
+/* El visor de acordes aprovecha el máximo de la pantalla sin solapar navegación */
 body.focus-mode .chord-display {
-  height: 100vh;
-  max-height: 100vh;
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  max-height: 100%;
   padding: 24px 28px 40px;
   box-sizing: border-box;
 }

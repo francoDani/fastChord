@@ -98,6 +98,12 @@
 
                 <div id="chord-display" class="chord-display"></div>
 
+                <nav id="playlist-song-navigation" class="playlist-song-navigation hidden">
+                    <button id="playlist-prev" class="btn" type="button" title="Canción anterior">‹</button>
+                    <span id="playlist-song-position"></span>
+                    <button id="playlist-next" class="btn" type="button" title="Siguiente canción">›</button>
+                </nav>
+
                 <section class="notes-section">
                     <div class="notes-header">
                         <h3>Notas personales</h3>
@@ -105,12 +111,6 @@
                     </div>
                     <textarea id="song-notes" placeholder="Anotaciones..."></textarea>
                 </section>
-
-                <nav id="playlist-song-navigation" class="playlist-song-navigation hidden">
-                    <button id="playlist-prev" class="btn" type="button">Anterior</button>
-                    <span id="playlist-song-position"></span>
-                    <button id="playlist-next" class="btn" type="button">Siguiente</button>
-                </nav>
             </div>
 
             <!-- Formulario -->
@@ -335,9 +335,9 @@
                     </article>
                 </div>
                 <nav class="shared-song-navigation">
-                    <button id="shared-prev" class="btn" type="button">Anterior</button>
+                    <button id="shared-prev" class="btn" type="button" title="Canción anterior">‹</button>
                     <span id="shared-song-position"></span>
-                    <button id="shared-next" class="btn" type="button">Siguiente</button>
+                    <button id="shared-next" class="btn" type="button" title="Siguiente canción">›</button>
                 </nav>
             </section>
         </main>
