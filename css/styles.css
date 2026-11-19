@@ -288,15 +288,19 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  padding: 24px 28px 78px;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 24px 48px;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .shared-playlist-header {
+  flex-shrink: 0;
   width: min(100%, 900px);
   margin: 0 auto;
   text-align: center;
-  padding-bottom: 18px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -316,12 +320,13 @@ body {
 }
 
 .shared-playlist-content {
+  flex: 1 1 auto;
+  min-height: 0;
   display: grid;
   grid-template-columns: 230px minmax(0, 1fr);
   gap: 28px;
   width: min(100%, 1100px);
-  height: calc(100% - 126px);
-  margin: 18px auto 0;
+  margin: 14px auto 0;
 }
 
 .shared-song-sidebar {
@@ -469,6 +474,20 @@ body {
   opacity: 0.25;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+.shared-song-navigation .btn-zoom {
+  opacity: 0.8;
+}
+
+.shared-song-navigation .btn-zoom:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.shared-song-navigation .btn-zoom svg {
+  width: 13px;
+  height: 13px;
+  display: block;
 }
 
 #song-view.autoscrolling .playlist-song-navigation {
@@ -1611,14 +1630,14 @@ body.focus-mode .chord-display {
   }
 
   .shared-playlist-view {
-    padding: 18px 14px 74px;
+    padding: 14px 12px 48px;
   }
 
   .shared-playlist-content {
     grid-template-columns: 1fr;
     grid-template-rows: auto minmax(0, 1fr);
     gap: 10px;
-    height: calc(100% - 136px);
+    height: auto;
   }
 
   .shared-song-sidebar {

@@ -1025,15 +1025,59 @@ function initSharedPlaylist(token) {
   let songs = [];
   let currentIndex = 0;
 
+  const display = document.getElementById('shared-chord-display');
+  const btnFontDec = document.getElementById('shared-font-dec');
+  const btnFontInc = document.getElementById('shared-font-inc');
+
+  // Control de tamaño de fuente para la canción (límites configurables)
+  const MIN_FONT_SIZE = 11; // Límite inferior (en px)
+  const MAX_FONT_SIZE = 28; // Límite superior (en px)
+  const FONT_STEP = 1.5;    // Incremento por clic
+
+  const savedFontSize = parseFloat(localStorage.getItem('fastchord_shared_fontsize'));
+  let currentFontSize = (!isNaN(savedFontSize) && savedFontSize >= MIN_FONT_SIZE && savedFontSize <= MAX_FONT_SIZE)
+    ? savedFontSize
+    : 16;
+
+  function applyFontSize(size) {
+    currentFontSize = Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, size));
+    if (display) {
+      display.style.fontSize = currentFontSize + 'px';
+    }
+    if (btnFontDec) {
+      btnFontDec.disabled = (currentFontSize <= MIN_FONT_SIZE);
+    }
+    if (btnFontInc) {
+      btnFontInc.disabled = (currentFontSize >= MAX_FONT_SIZE);
+    }
+    try {
+      localStorage.setItem('fastchord_shared_fontsize', currentFontSize);
+    } catch (e) {}
+  }
+
+  if (btnFontDec) {
+    btnFontDec.addEventListener('click', function () {
+      applyFontSize(currentFontSize - FONT_STEP);
+    });
+  }
+
+  if (btnFontInc) {
+    btnFontInc.addEventListener('click', function () {
+      applyFontSize(currentFontSize + FONT_STEP);
+    });
+  }
+
+  applyFontSize(currentFontSize);
+
   function showSong(index) {
     currentIndex = index;
     const song = songs[currentIndex];
     if (!song) return;
 
     document.getElementById('shared-song-title').textContent = song.title;
-    const display = document.getElementById('shared-chord-display');
     display.innerHTML = ChordPro.render(song.body, 0);
     display.classList.add('hide-chords');
+    display.style.fontSize = currentFontSize + 'px';
 
     // Reset de scroll al inicio de la canción
     display.scrollTop = 0;
